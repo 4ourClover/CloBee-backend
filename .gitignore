@@ -1,1 +1,49 @@
 .env*
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+logs/
+*.out
+
+# Build directories
+/build/
+/target/
+
+# Gradle
+.gradle/
+/build/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+
+# Lombok generated config
+lombok.config
+
+# Application specific
+application-*.yml
+application-*.properties
