@@ -17,10 +17,10 @@ public class EnvConfig {
         Dotenv dotenv = Dotenv.configure().filename(".env.local").load();
 
         if ("127.0.0.1".equals(hostAddress) || "localhost".equals(hostAddress)) {
-            System.out.println("env파일 .env.local for localhost");
+            System.out.println(".env.local for localhost");
         } else {
             // Dotenv dotenv = Dotenv.configure().filename(".env.prod").load();
-            System.out.println("env파일 .env file for IP: " + hostAddress);
+            System.out.println(".env file for IP: " + hostAddress);
         }
 
         System.setProperty("DB_URL", dotenv.get("DB_URL"));
