@@ -6,6 +6,7 @@ import com.fourclover.clobee.event.repository.EventRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -19,6 +20,11 @@ public class EventServiceImpl implements EventService {
     public List<EventAttendanceDetail> getTotalAttend(long userId) {
         return eventRepository.getTotalAttend(userId);
     }
+
+    @Override
+    public Long addAttend(EventAttendanceDetail attendanceDetail) {
+        return eventRepository.addAttendDay(attendanceDetail);
+    };
 
     @Override
     public List<EventInfo> getCardEvents() {

@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fourclover.clobee.event.repository.EventRepository">
+    <!-- 출석 이벤트 : 사용자별 출석 정보 불러오기 -->
     <select id="getTotalAttend" parameterType="long" resultType="EventAttendanceDetail">
         SELECT *
         FROM event_attendance_detail
         WHERE user_id = #{userId}
     </select>
+
+    <!-- 출석 이벤트 : 출석 추가하기 -->
+    <insert id="addAttendDay" parameterType="EventAttendanceDetail">
+        INSERT INTO event_attendance_detail (event_info_id, user_id)
+        VALUES (#{event_info_id}, #{user_id})
+        RETURNING event_attendance_id
+    </insert>
+
+    <!-- 카드사 이벤트 : 모든 카드사 이벤트 불러오기 -->
     <select id="getCardEvent" resultType="EventInfo">
         SELECT *
         FROM event_info
