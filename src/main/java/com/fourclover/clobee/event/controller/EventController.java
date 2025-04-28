@@ -2,12 +2,15 @@ package com.fourclover.clobee.event.controller;
 
 import com.fourclover.clobee.event.domain.EventInfo;
 import com.fourclover.clobee.event.service.EventService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController("/event")
+@RestController
+@RequestMapping("/event")
 public class EventController {
     private final EventService eventService;
 
@@ -16,7 +19,7 @@ public class EventController {
     }
 
     @GetMapping("/getCardEvent")
-    public List<EventInfo> getCardEvent() {
-        return eventService.getTotalAttend();
+    public ResponseEntity<List<EventInfo>> getCardEvent() {
+        return ResponseEntity.ok(eventService.getTotalAttend());
     }
 }
