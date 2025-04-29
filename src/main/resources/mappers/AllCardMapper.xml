@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fourclover.clobee.card.repository.CardRepository">
+    <!-- 카드 : 전체 신용 카드 페이지네이션 -->
+    <select id="allCardPaging" resultType="com.fourclover.clobee.card.domain.CardPageListDTO">
+        SELECT card_info_id, card_rank, card_name, card_brand,
+               card_domestic_annual_fee, card_global_annual_fee,
+               card_type, card_image_url
+        FROM card_info
+        WHERE card_type = #{cardType}
+        ORDER BY card_rank
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 카드 : 전체 신용 카드 개수 -->
+    <select id="allCardCount" resultType="int">
+        SELECT COUNT(*)
+        FROM card_info
+        WHERE card_type = #{cardType}
+    </select>
+
+
+</mapper>
