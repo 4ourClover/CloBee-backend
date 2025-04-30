@@ -1,13 +1,15 @@
 package com.fourclover.clobee.event.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 
 import java.sql.Date;
 
 @Getter
+@Builder
 public class EventAttendanceDetail {
-    private Long event_attendance_id;
-    private Long event_info_id;
-    private Long user_id;
-    private Date created_at;
+    private Long eventAttendanceId;
+    private Long eventInfoId;
+    private Long userId;
+    private Date createAt;
 }

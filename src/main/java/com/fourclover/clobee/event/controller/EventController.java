@@ -24,13 +24,13 @@ public class EventController {
     }
 
     @GetMapping("/getTotalAttend")
-    public ResponseEntity<List<EventAttendanceDetail>> getTotalAttend(@RequestParam("user_id") int userId) {
+    public ResponseEntity<List<EventAttendanceDetail>> getTotalAttend(@RequestParam("userId") int userId) {
         return ResponseEntity.ok(eventService.getTotalAttend(userId));
     }
 
-    @GetMapping("/addAttend")
-    public ResponseEntity addAttend(@RequestBody EventAttendanceDetail attendanceDetail) {
-        return ResponseEntity.ok(eventService.addAttend(attendanceDetail));
+    @PostMapping("/addAttend")
+    public ResponseEntity addAttend(@RequestBody EventAttendanceDetail eventAttendanceDetail) {
+        return ResponseEntity.ok(eventService.addAttend(eventAttendanceDetail));
     }
 
     // 게임 시작 or 오늘 초대 보너스(친구 초대시 invited=true)

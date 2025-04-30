@@ -10,6 +10,4 @@ import java.time.LocalDateTime;
 @Data
 public class UserInfo {
     private Long userId;
-
-
 }

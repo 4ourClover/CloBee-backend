@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface EventService {
     List<EventAttendanceDetail> getTotalAttend(long userId);
-    Long addAttend(EventAttendanceDetail attendanceDetail);
+    Long addAttend(EventAttendanceDetail eventAttendanceDetail);
 
     List<EventInfo> getCardEvents();
 

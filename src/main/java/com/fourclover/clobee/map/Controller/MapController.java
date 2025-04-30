@@ -1,4 +1,4 @@
-package com.fourclover.clobee.map.Controller;
+package com.fourclover.clobee.map.controller;
 
 public class MapController {
 }

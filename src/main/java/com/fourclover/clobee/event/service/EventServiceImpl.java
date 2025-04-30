@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -32,8 +31,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Long addAttend(EventAttendanceDetail attendanceDetail) {
-        return eventRepository.addAttendDay(attendanceDetail);
+    public Long addAttend(EventAttendanceDetail eventAttendanceDetail) {
+        EventInfo eventInfo = eventRepository.selectEventInfoByTypeCd(602);
+        EventAttendanceDetail eventDetail = EventAttendanceDetail.builder()
+                                                    .userId(eventAttendanceDetail.getUserId())
+                                                    .eventInfoId(eventInfo.getEventInfoId()).build();
+        return eventRepository.addAttendDay(eventDetail);
     };
 
     @Override
