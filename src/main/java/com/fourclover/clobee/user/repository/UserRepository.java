@@ -7,5 +7,7 @@ import java.util.Optional;
 
 @Mapper
 public interface UserRepository {
-    Optional<UserInfo> findByEmail(String userEmail);
+//    Optional<UserInfo> findByEmail(String userEmail);
+
+
 }

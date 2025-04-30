@@ -6,4 +6,6 @@
         FROM user_info
         WHERE user_email = #{username}
     </select>
+
+
 </mapper>

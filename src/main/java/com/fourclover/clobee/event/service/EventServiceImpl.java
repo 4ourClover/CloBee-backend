@@ -1,15 +1,25 @@
 package com.fourclover.clobee.event.service;
 
+import com.fourclover.clobee.config.exception.ApiException;
+import com.fourclover.clobee.config.exception.ErrorCode;
 import com.fourclover.clobee.event.domain.EventAttendanceDetail;
+import com.fourclover.clobee.event.domain.EventFindingCloverDetail;
 import com.fourclover.clobee.event.domain.EventInfo;
 import com.fourclover.clobee.event.repository.EventRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
+
+    // application.yml에 선언한 코드
+    @Value("${event.findingClover.typeCode}")
+    private int cloverEventTypeCode;
 
     public EventServiceImpl(EventRepository eventRepository) {
         this.eventRepository = eventRepository;
@@ -23,5 +33,115 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventInfo> getCardEvents() {
         return eventRepository.getCardEvents();
+    }
+
+    // 클로버 찾기 이벤트
+    // 게임 시작 혹은 새로운 날짜에 자동 초기화
+    @Transactional
+    @Override
+    public EventFindingCloverDetail startCloverGame(Long userId, boolean invited) {
+        // 스크립트로 미리 넣어둔 event_info 를 조회
+        EventInfo info = eventRepository.selectEventInfoByTypeCd(cloverEventTypeCode);
+        if (info == null) {
+            throw new RuntimeException("이벤트 정보를 찾을 수 없습니다.");
+        }
+
+        EventFindingCloverDetail d = eventRepository.selectCloverDetailByUserId(userId);
+
+        // 첫 참여 혹은 날짜가 바뀐 경우
+        if (d == null
+                || d.getCreated_at().toLocalDate().isBefore(LocalDate.now())) {
+
+            d = new EventFindingCloverDetail();
+            d.setEvent_info_id(info.getEvent_info_id());
+            d.setUser_id(userId);
+            d.setEvent_finding_clover_participation_status(false);
+            d.setEvent_finding_clover_current_stage(1);
+            d.setEvent_finding_clover_receive_coupon(false);
+            d.setEvent_finding_clover_attempts_left(5);
+            eventRepository.insertCloverDetail(d);
+
+        } else if (invited) {
+            // 친구 초대 시: 당일 참여 여부 완전 초기화 (시도 횟수 5회로)
+            d.setEvent_finding_clover_participation_status(false);
+            d.setEvent_finding_clover_attempts_left(5);
+            eventRepository.updateCloverDetail(d);
+        }
+
+        // 오늘 이미 참여한 경우(생성일이 오늘이면서 participation_status=true)
+        // 비초대 상태일때 오늘 이미 참여한 사람은 예외처리
+        if (!invited
+                && Boolean.TRUE.equals(d.getEvent_finding_clover_participation_status())) {
+            throw new ApiException(ErrorCode.ALREADY_PARTICIPATED);
+        }
+
+        // 그 외(이미 오늘 참여 중이고 초대 아님)는 아무 변경 없이 반환
+        return d;
+    }
+
+
+    // 유저의 카드 클릭 처리(성공/실패)
+    // 예외를 던져도 DB 업데이트가 유지
+    @Transactional(noRollbackFor = ApiException.class)
+    @Override
+    public EventFindingCloverDetail processCloverAttempt(Long userId, boolean success) {
+        EventFindingCloverDetail d = eventRepository.selectCloverDetailByUserId(userId);
+
+        // 이미 참여 여부 체크 (true면 더 이상 시도 불가)
+        if (Boolean.TRUE.equals(d.getEvent_finding_clover_participation_status())) {
+            throw new ApiException(ErrorCode.ALREADY_PARTICIPATED);
+        }
+
+        // 이미 쿠폰을 받은 상태에서 3단계를 클리어 시
+        if (success
+                && Boolean.TRUE.equals(d.getEvent_finding_clover_receive_coupon())
+                && Integer.valueOf(3).equals(d.getEvent_finding_clover_current_stage())) {
+            throw new ApiException(ErrorCode.COUPON_ALREADY_RECEIVED);
+        }
+        
+        // 시도 차감
+        int left = d.getEvent_finding_clover_attempts_left() - 1;
+        d.setEvent_finding_clover_attempts_left(left);
+
+        if (!success && left <= 0) {
+            // 게임 종료 설정
+            d.setEvent_finding_clover_current_stage(1);
+            d.setEvent_finding_clover_participation_status(true);
+            // 상태 저장
+            eventRepository.updateCloverDetail(d);
+            throw new ApiException(ErrorCode.ATTEMPTS_EXHAUSTED);
+        }
+
+        if (success) {
+            // 스테이지 클리어
+            int nextStage = d.getEvent_finding_clover_current_stage() + 1;
+            d.setEvent_finding_clover_current_stage(nextStage);
+
+            if (nextStage > 3 && !d.getEvent_finding_clover_receive_coupon()) {
+                // 3단계 최초 클리어 -> 쿠폰 지급
+                d.setEvent_finding_clover_receive_coupon(true);
+            }
+            // 다음 스테이지 준비
+            d.setEvent_finding_clover_attempts_left(5);
+        }
+
+        // 성공으로 3단계 돌파 시 게임 종료
+        if (success && d.getEvent_finding_clover_current_stage() > 3) {
+            d.setEvent_finding_clover_current_stage(1);
+            d.setEvent_finding_clover_participation_status(true);
+        }
+
+        eventRepository.updateCloverDetail(d);
+        return d;
+    }
+
+    // 현재 상태 조회(테스트용 코드 / 추후 삭제)
+    @Override
+    public EventFindingCloverDetail getCloverStatus(Long userId) {
+        EventFindingCloverDetail d = eventRepository.selectCloverDetailByUserId(userId);
+        if (d == null) {
+            throw new RuntimeException("게임 정보를 찾을 수 없습니다.");
+        }
+        return d;
     }
 }
