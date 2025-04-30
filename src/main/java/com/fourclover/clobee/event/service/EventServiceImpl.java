@@ -6,6 +6,7 @@ import com.fourclover.clobee.event.domain.EventAttendanceDetail;
 import com.fourclover.clobee.event.domain.EventFindingCloverDetail;
 import com.fourclover.clobee.event.domain.EventInfo;
 import com.fourclover.clobee.event.repository.EventRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
