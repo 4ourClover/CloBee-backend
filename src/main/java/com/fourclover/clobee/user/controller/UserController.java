@@ -5,11 +5,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/noti")
+@RequestMapping("/user")
 public class UserController {
 
-    @GetMapping("/getUserEmail")
-    public void getUserEmail() {
-        System.out.println("getUserEmail");
-    }
+//    @GetMapping("/getUserEmail")
+//    public void getUserEmail() {
+//        System.out.println("getUserEmail");
+//    }
 }

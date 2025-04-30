@@ -1,14 +1,13 @@
 package com.fourclover.clobee.user.domain;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.*;
+import lombok.Data;
 
-import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-@Getter
+@Data
 public class UserInfo {
-    private Long user_id;
-    private String username;
-    private String email;
-    private Timestamp created_at;
-    private Timestamp updated_at;
+    private Long userId;
 }
