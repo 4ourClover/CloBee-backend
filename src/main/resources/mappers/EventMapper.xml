@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fourclover.clobee.event.repository.EventRepository">
+    <!-- 출석 이벤트 : 사용자별 출석 정보 불러오기 -->
     <select id="getTotalAttend" parameterType="long" resultType="EventAttendanceDetail">
         SELECT *
         FROM event_attendance_detail

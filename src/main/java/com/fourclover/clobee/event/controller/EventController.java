@@ -29,8 +29,8 @@ public class EventController {
     }
 
     @GetMapping("/addAttend")
-    public ResponseEntity<Object> addAttend() {
-        return ResponseEntity.ok("mm");
+    public ResponseEntity addAttend(@RequestBody EventAttendanceDetail attendanceDetail) {
+        return ResponseEntity.ok(eventService.addAttend(attendanceDetail));
     }
 
     // 게임 시작 or 오늘 초대 보너스(친구 초대시 invited=true)
