@@ -8,5 +8,8 @@ import java.util.List;
 public interface CardService {
     CardPageDTO getCardPage(String type, int page, int size);
 
-    List<CardBenefitDetail> getCardBenefitDetail(Long id);
+    List<CardBenefitDetail> getCardBenefitDetail(Long cardInfoId);
+
+    String getCardBrandUrlAndIncreaseApplyViews(Long cardInfoId, int cardBrand);
+
 }
