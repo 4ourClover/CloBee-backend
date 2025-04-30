@@ -29,5 +29,18 @@
         WHERE card_info_id = #{cardInfoId}
     </select>
 
+    <!-- 카드 : 카드사 url 가져오기(카드 신청하기) -->
+    <select id="getCardBrandURL" resultType="String">
+        SELECT card_brand_url
+        FROM card_brand_url_detail
+        WHERE card_brand = #{cardBrand}
+    </select>
+
+    <!-- 카드 : 카드 신청하기 누르면 card_apply_views 증가 -->
+    <update id="updateApplyViews">
+        update card_info
+        SET card_apply_views = card_apply_views + 1
+        WHERE card_info_id = #{cardInfoId}
+    </update>
 
 </mapper>

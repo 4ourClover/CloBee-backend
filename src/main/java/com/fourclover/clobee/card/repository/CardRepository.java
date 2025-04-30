@@ -19,4 +19,9 @@ public interface CardRepository {
     // 카드 혜택
     List<CardBenefitDetail> cardBenefit(@Param("cardInfoId") Long cardInfoId);
 
+    // 카드사 url 가져오기
+    String getCardBrandURL(@Param("cardBrand") int cardBrand);
+
+    // 카드 신청하기 버튼을 누를 때 마다 card_apply_views 증가
+    void updateApplyViews(@Param("cardInfoId") Long cardInfoId);
 }
