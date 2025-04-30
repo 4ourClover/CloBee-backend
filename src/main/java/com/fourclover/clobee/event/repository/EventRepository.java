@@ -12,15 +12,16 @@ import java.util.List;
 public interface EventRepository {
     // 출석 이벤트
     List<EventAttendanceDetail> getTotalAttend(long userId);
+    Long addAttendDay(EventAttendanceDetail attendanceDetail);
 
     // 카드 이벤트
     List<EventInfo> getCardEvents();
 
     // 클로버 찾기 이벤트
-    EventFindingCloverDetail selectCloverDetailByUserId(@Param("user_id") Long userId);
+    EventFindingCloverDetail selectCloverDetailByUserId(@Param("userId") Long userId);
     int insertCloverDetail(EventFindingCloverDetail detail);
     int updateCloverDetail(EventFindingCloverDetail detail);
 
     // findClover용 event_info 한 건 조회 (진행중인)
-    EventInfo selectEventInfoByTypeCd(@Param("event_type_cd") int eventTypeCd);
+    EventInfo selectEventInfoByTypeCd(int eventTypeCd);
 }

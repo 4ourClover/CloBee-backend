@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fourclover.clobee.event.repository.EventRepository">
+    <!-- 출석 이벤트 : 사용자별 출석 정보 불러오기 -->
     <select id="getTotalAttend" parameterType="long" resultType="EventAttendanceDetail">
         SELECT *
         FROM event_attendance_detail
@@ -10,7 +11,7 @@
     <!-- 출석 이벤트 : 출석 추가하기 -->
     <insert id="addAttendDay" parameterType="EventAttendanceDetail">
         INSERT INTO event_attendance_detail (event_info_id, user_id)
-        VALUES (#{event_info_id}, #{user_id})
+        VALUES (#{eventInfoId}, #{userId})
         RETURNING event_attendance_id
     </insert>
 
@@ -38,7 +39,7 @@
             created_at,
             updated_at
         FROM event_info
-        WHERE event_type_cd   = #{event_type_cd}
+        WHERE event_type_cd   = #{eventTypeCd}
           AND event_status_cd = 702
           AND CURRENT_DATE BETWEEN event_start_day AND event_end_day
     </select>
@@ -46,16 +47,20 @@
     <!-- 유저의 클로버 이벤트 정보 조회 -->
     <select id="selectCloverDetailByUserId"
             parameterType="long"
-            resultType="com.fourclover.clobee.event.domain.EventFindingCloverDetail">
+            resultType="EventFindingCloverDetail">
         SELECT *
         FROM event_finding_clover_detail
-        WHERE user_id = #{user_id}
+        WHERE user_id = #{userId}
+        -- 오늘(현재 날짜) 기록만 조회하려면 아래 한 줄 추가
+        AND DATE(created_at) = CURRENT_DATE
+        ORDER BY created_at DESC
+        LIMIT 1
     </select>
 
     <!--  새 기록 삽입 -->
     <insert id="insertCloverDetail"
             parameterType="com.fourclover.clobee.event.domain.EventFindingCloverDetail"
-            useGeneratedKeys="true" keyProperty="event_finding_clover_id">
+            useGeneratedKeys="true" keyProperty="eventFindingCloverId">
         INSERT INTO event_finding_clover_detail
         (event_info_id, user_id,
          event_finding_clover_participation_status,
@@ -64,25 +69,23 @@
          event_finding_clover_attempts_left,
          created_at, updated_at)
         VALUES
-            (#{event_info_id}, #{user_id},
-             #{event_finding_clover_participation_status},
-             #{event_finding_clover_current_stage},
-             #{event_finding_clover_receive_coupon},
-             #{event_finding_clover_attempts_left},
+            (#{eventInfoId}, #{userId},
+             #{eventFindingCloverParticipationStatus},
+             #{eventFindingCloverCurrentStage},
+             #{eventFindingCloverReceiveCoupon},
+             #{eventFindingCloverAttemptsLeft},
              NOW(), NOW())
     </insert>
 
-
-    <!--  기록 업데이트 -->
     <update id="updateCloverDetail"
             parameterType="com.fourclover.clobee.event.domain.EventFindingCloverDetail">
         UPDATE event_finding_clover_detail
         SET
-            event_finding_clover_participation_status = #{event_finding_clover_participation_status},
-            event_finding_clover_current_stage        = #{event_finding_clover_current_stage},
-            event_finding_clover_receive_coupon       = #{event_finding_clover_receive_coupon},
-            event_finding_clover_attempts_left        = #{event_finding_clover_attempts_left},
+            event_finding_clover_participation_status = #{eventFindingCloverParticipationStatus},
+            event_finding_clover_current_stage        = #{eventFindingCloverCurrentStage},
+            event_finding_clover_receive_coupon       = #{eventFindingCloverReceiveCoupon},
+            event_finding_clover_attempts_left        = #{eventFindingCloverAttemptsLeft},
             updated_at = NOW()
-        WHERE event_finding_clover_id = #{event_finding_clover_id}
+        WHERE event_finding_clover_id = #{eventFindingCloverId}
     </update>
 </mapper>
