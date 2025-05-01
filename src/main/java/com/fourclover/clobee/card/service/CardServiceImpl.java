@@ -1,8 +1,9 @@
 package com.fourclover.clobee.card.service;
 
 import com.fourclover.clobee.card.domain.CardBenefitDetail;
+import com.fourclover.clobee.card.domain.CardListDTO;
 import com.fourclover.clobee.card.domain.CardPageDTO;
-import com.fourclover.clobee.card.domain.CardPageListDTO;
+import com.fourclover.clobee.card.domain.UserCardDetail;
 import com.fourclover.clobee.card.repository.CardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class CardServiceImpl implements CardService {
                 break;
         }
 
-        List<CardPageListDTO> cards = cardRepository.allCardPaging(cardType, offset, size);
+        List<CardListDTO> cards = cardRepository.allCardPaging(cardType, offset, size);
         int totalCount = cardRepository.allCardCount(cardType);
         return new CardPageDTO(cards, totalCount);
 
@@ -45,7 +46,7 @@ public class CardServiceImpl implements CardService {
     // 카드 상세 보기(전체, 내 카드 공통?)
     @Override
     public List<CardBenefitDetail> getCardBenefitDetail(Long cardInfoId) {
-        return cardRepository.cardBenefit(cardInfoId);
+        return cardRepository.getCardBenefit(cardInfoId);
     }
 
     // 카드사 url 가져오기(카드 신청하기)
@@ -58,4 +59,29 @@ public class CardServiceImpl implements CardService {
        // 추후 에러코드 추가
     }
 
+    // 내 카드 추가하기
+    @Override
+    public void addUserCard(Long userId, Long cardInfoId) {
+        CardListDTO card = cardRepository.findByCardInfoId(cardInfoId);
+                //.orElseThrow(() -> new ApiException(ErrorCode.CARD_NOT_FOUND));
+
+        UserCardDetail detail = UserCardDetail.builder()
+                .userId(userId)
+                .cardInfoId(cardInfoId)
+                .build();
+
+        cardRepository.insertUserCard(detail);
+    }
+
+    // 내 카드 조회하기
+    @Override
+    public List<CardListDTO> getMyCardList(Long userId) {
+        return cardRepository.getMyCard(userId);
+    }
+
+    // 카드 검색
+    @Override
+    public List<CardListDTO> searchCard(String cardName) {
+        return cardRepository.searchCard("%" + cardName + "%");
+    }
 }

@@ -3,7 +3,7 @@
 <mapper namespace="com.fourclover.clobee.card.repository.CardRepository">
 
     <!-- 카드 : 전체 신용 카드 페이지로 보기 -->
-    <select id="allCardPaging" resultType="CardPageListDTO">
+    <select id="allCardPaging" resultType="CardListDTO">
         SELECT card_info_id, card_rank, card_name, card_brand,
                card_domestic_annual_fee, card_global_annual_fee,
                card_type, card_image_url
@@ -20,8 +20,19 @@
         WHERE card_type = #{cardType}
     </select>
 
+    <!-- card_info_id로 특정 카드 정보 가져오기 -->
+    <select id="findByCardInfoId" resultType="CardListDTO">
+        SELECT
+            card_info_id, card_rank, card_name,
+            card_brand, card_domestic_annual_fee,
+            card_global_annual_fee, card_type,
+            card_image_url
+        FROM card_info
+        WHERE card_info_id = #{cardInfoId}
+    </select>
+
     <!-- 카드 : 카드 혜택 상세 보기 -->
-    <select id="cardBenefit" resultType="CardBenefitDetail">
+    <select id="getCardBenefit" resultType="CardBenefitDetail">
         SELECT card_benefit_id, card_info_id, card_benefit_category,
                card_benefit_store, card_benefit_title, card_benefit_desc,
                card_benefit_discnt_rate, card_benefit_discnt_price, card_benefit_condition
@@ -42,5 +53,39 @@
         SET card_apply_views = card_apply_views + 1
         WHERE card_info_id = #{cardInfoId}
     </update>
+
+    <!-- 내 카드 : 내 카드 추가 하기 -->
+    <insert id="insertUserCard" parameterType="UserCardDetail">
+        INSERT INTO user_card_detail (
+            user_id, card_info_id, user_card_type, user_card_brand,
+            user_card_number, user_card_cvc, user_card_name, user_card_expiration,
+            created_at, updated_at
+        ) VALUES (
+            #{userId}, #{cardInfoId}, #{userCardType}, #{userCardBrand},
+            #{userCardNumber}, #{userCardCvc}, #{userCardName}, #{userCardExpiration},
+            now(), now()
+        )
+    </insert>
+
+    <!-- 내 카드 : 내 카드 목록 가져오기 -->
+    <select id="getMyCard" resultType="CardListDTO">
+        SELECT ci.card_info_id, ci.card_rank, ci.card_name, ci.card_brand,
+               ci.card_domestic_annual_fee, ci.card_global_annual_fee,
+               ci.card_type, ci.card_image_url
+        FROM card_info ci
+                 INNER JOIN user_card_detail ucd ON ci.card_info_id = ucd.card_info_id
+        WHERE ucd.user_id = #{userId}
+    </select>
+
+    <!-- 내 카드 : 검색한 카드 가져오기 -->
+    <select id="searchCard" resultType="CardListDTO">
+        SELECT
+            card_info_id, card_rank, card_name,
+            card_brand, card_domestic_annual_fee,
+            card_global_annual_fee, card_type,
+            card_image_url
+        FROM card_info
+        WHERE card_name ILIKE #{cardName}
+    </select>
 
 </mapper>

@@ -15,6 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CardPageDTO {
-    private List<CardPageListDTO> cardPageList;
+    private List<CardListDTO> cardPageList;
     private int totalCount;
 }
