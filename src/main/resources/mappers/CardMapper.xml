@@ -88,4 +88,11 @@
         WHERE card_name ILIKE #{cardName}
     </select>
 
+    <!-- 내 카드 : 이미 등록한 카드인지 확인 -->
+    <select id="existsUserCard" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM user_card_detail
+        WHERE user_id = #{userId} AND card_info_id = #{cardInfoId}
+    </select>
+
 </mapper>

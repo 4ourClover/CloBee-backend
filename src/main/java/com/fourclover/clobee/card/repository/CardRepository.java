@@ -37,4 +37,6 @@ public interface CardRepository {
 
     // 카드 검색
     List<CardListDTO> searchCard(@Param("cardName") String cardName);
+
+    boolean existsUserCard(@Param("userId") Long userId, @Param("cardInfoId") Long cardInfoId);
 }
