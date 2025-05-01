@@ -1,4 +1,4 @@
-package com.fourclover.clobee.config;
+package com.fourclover.clobee.config.dbConfig;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Configuration;
