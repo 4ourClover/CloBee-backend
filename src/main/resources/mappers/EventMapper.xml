@@ -15,11 +15,12 @@
         RETURNING event_attendance_id
     </insert>
 
-    <!-- 카드사 이벤트 : 카드사 이벤트 불러오기 -->
-    <select id="getCardEvent" resultType="EventInfo">
+    <!-- 진행중인 이벤트 불러오기 -->
+    <select id="getEventInfo" parameterType="int" resultType="EventInfo">
         SELECT *
         FROM event_info
         WHERE event_status_cd IN (702, 703)
+        AND event_type_cd = #{comCodeId}
     </select>
 
     <!-- findClover 이벤트 정보 단건 조회 -->

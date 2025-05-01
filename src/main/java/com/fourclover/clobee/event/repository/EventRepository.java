@@ -10,12 +10,12 @@ import java.util.List;
 
 @Mapper
 public interface EventRepository {
+    // 전체 이벤트 중 특정 이벤트 내역 불러오기
+    List<EventInfo> getEventInfo(int comCodeId);
+
     // 출석 이벤트
     List<EventAttendanceDetail> getTotalAttend(long userId);
     Long addAttendDay(EventAttendanceDetail attendanceDetail);
-
-    // 카드 이벤트
-    List<EventInfo> getCardEvents();
 
     // 클로버 찾기 이벤트
     EventFindingCloverDetail selectCloverDetailByUserId(@Param("userId") Long userId);

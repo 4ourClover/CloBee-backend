@@ -27,7 +27,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Long addAttend(EventAttendanceDetail eventAttendanceDetail) {
-        EventInfo eventInfo = eventRepository.selectEventInfoByTypeCd(602);
+        EventInfo eventInfo = eventRepository.selectEventInfoByTypeCd(ComCode.ATTEND_EVENT.getCodeId());
         EventAttendanceDetail eventDetail = EventAttendanceDetail.builder()
                                                     .userId(eventAttendanceDetail.getUserId())
                                                     .eventInfoId(eventInfo.getEventInfoId()).build();
@@ -36,7 +36,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventInfo> getCardEvents() {
-        return eventRepository.getCardEvents();
+        return eventRepository.getEventInfo(ComCode.CARD_EVENT.getCodeId());
     }
 
     // 클로버 찾기 이벤트
