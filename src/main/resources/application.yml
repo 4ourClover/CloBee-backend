@@ -16,6 +16,32 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
+  # --- OAuth2 (Kakao) 설정 추가 ---
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-name: kakao
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - profile_nickname
+              - account_email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+  # --- SMS API 설정 바인딩 ---
+  sms:
+    api:
+      url: ${SMS_API_URL}
+      key: ${SMS_API_KEY}
+      secret: ${SMS_API_SECRET}
 
 mybatis:
   mapper-locations: classpath:mappers/*.xml

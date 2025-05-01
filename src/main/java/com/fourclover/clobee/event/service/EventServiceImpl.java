@@ -58,9 +58,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFindingCloverDetail startCloverGame(Long userId, boolean invited) {
         // 스크립트로 미리 넣어둔 event_info 를 조회
-        EventInfo info = eventRepository.selectEventInfoByTypeCd(ComCode.CLOVER_FILL_EVENT.getCodeId());
+        EventInfo info = eventRepository.selectEventInfoByTypeCd(ComCode.CLOVER_FIND_EVENT.getCodeId());
         if (info == null) {
-            throw new RuntimeException("이벤트 정보를 찾을 수 없습니다.");
+            throw new ApiException(ErrorCode.EVENT_INFO_NOT_FOUND);
         }
 
         EventFindingCloverDetail d = eventRepository.selectCloverDetailByUserId(userId);
@@ -157,7 +157,7 @@ public class EventServiceImpl implements EventService {
     public EventFindingCloverDetail getCloverStatus(Long userId) {
         EventFindingCloverDetail d = eventRepository.selectCloverDetailByUserId(userId);
         if (d == null) {
-            throw new RuntimeException("게임 정보를 찾을 수 없습니다.");
+            throw new ApiException(ErrorCode.GAME_INFO_NOT_FOUND);
         }
         return d;
     }

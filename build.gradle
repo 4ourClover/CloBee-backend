@@ -28,10 +28,23 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // OAuth2
+    implementation 'org.springframework.security:spring-security-oauth2-client'
+
+    // SMS
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'net.nurigo:java-sdk:4.3.0'
+
     // PostgreSQL
     implementation 'org.postgresql:postgresql:42.7.3'
+
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.session:spring-session-data-redis'
+
     // env
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
     implementation 'io.github.cdimascio:dotenv-java:3.0.0'
