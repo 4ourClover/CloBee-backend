@@ -11,9 +11,15 @@ spring:
   mvc:
     servlet:
       path: /api
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+
 mybatis:
   mapper-locations: classpath:mappers/*.xml
-  type-aliases-package: com.fourclover.clobee.noti.domain, com.fourclover.clobee.user.domain, com.fourclover.clobee.card.domain, com.fourclover.clobee.event.domain
+  type-aliases-package: com.fourclover.clobee.noti.domain, com.fourclover.clobee.user.domain, com.fourclover.clobee.card.domain, com.fourclover.clobee.event.domain, com.fourclover.clobee.map.domain
   configuration:
     map-underscore-to-camel-case: true
 
@@ -21,7 +27,3 @@ logging:
   level:
     org.mybatis: INFO
     org.springframework.jdbc: DEBUG
-
-event:
-  findingClover:
-    typeCode: 604 # 스크립트에서 넣은 findClover 이벤트의 event_type_cd
