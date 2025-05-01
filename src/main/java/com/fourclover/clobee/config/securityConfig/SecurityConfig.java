@@ -11,6 +11,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 public class SecurityConfig {
 
@@ -20,9 +22,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
+                .csrf(withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .antMatchers(
+                        .requestMatchers(
                                 "/user/signup",
                                 "/user/sendPhoneCode",
                                 "/user/verifyPhoneCode",
