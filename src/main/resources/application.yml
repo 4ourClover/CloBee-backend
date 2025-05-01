@@ -27,7 +27,3 @@ logging:
   level:
     org.mybatis: INFO
     org.springframework.jdbc: DEBUG
-
-event:
-  findingClover:
-    typeCode: 604 # 스크립트에서 넣은 findClover 이벤트의 event_type_cd

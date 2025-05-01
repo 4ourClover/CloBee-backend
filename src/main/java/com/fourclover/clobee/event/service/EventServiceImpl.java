@@ -1,5 +1,6 @@
 package com.fourclover.clobee.event.service;
 
+import com.fourclover.clobee.common.ComCode;
 import com.fourclover.clobee.config.exception.ApiException;
 import com.fourclover.clobee.config.exception.ErrorCode;
 import com.fourclover.clobee.event.domain.EventAttendanceDetail;
@@ -15,16 +16,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
-
-    // application.yml에 선언한 코드
-    @Value("${event.findingClover.typeCode}")
-    private int cloverEventTypeCode;
-
-    public EventServiceImpl(EventRepository eventRepository) {
-        this.eventRepository = eventRepository;
-    }
 
     @Override
     public List<EventAttendanceDetail> getTotalAttend(long userId) {
@@ -51,7 +45,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFindingCloverDetail startCloverGame(Long userId, boolean invited) {
         // 스크립트로 미리 넣어둔 event_info 를 조회
-        EventInfo info = eventRepository.selectEventInfoByTypeCd(cloverEventTypeCode);
+        EventInfo info = eventRepository.selectEventInfoByTypeCd(ComCode.CLOVER_FILL_EVENT.getCodeId());
         if (info == null) {
             throw new RuntimeException("이벤트 정보를 찾을 수 없습니다.");
         }
