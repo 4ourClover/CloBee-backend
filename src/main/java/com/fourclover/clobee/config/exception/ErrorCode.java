@@ -13,6 +13,9 @@ public enum ErrorCode {
     COUPON_ALREADY_RECEIVED(HttpStatus.BAD_REQUEST, "이미 쿠폰을 지급받으셨습니다."),
     // 400 Bad Request: 시도 횟수 모두 소진된 경우
     ATTEMPTS_EXHAUSTED(HttpStatus.BAD_REQUEST, "횟수를 모두 소진하였습니다."),
+    // 409 : 출석체크 중복
+    CONFLICT_USER_ATTENDANCE(HttpStatus.CONFLICT, "이미 출석체크를 하였습니다."),
+
     // 500 상태코드
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류입니다.");
 

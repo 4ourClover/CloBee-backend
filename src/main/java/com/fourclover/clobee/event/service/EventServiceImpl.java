@@ -8,12 +8,13 @@ import com.fourclover.clobee.event.domain.EventFindingCloverDetail;
 import com.fourclover.clobee.event.domain.EventInfo;
 import com.fourclover.clobee.event.repository.EventRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -22,15 +23,27 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventAttendanceDetail> getTotalAttend(long userId) {
-        return eventRepository.getTotalAttend(userId);
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userId);
+        return eventRepository.getTotalAttend(params);
     }
 
     @Override
     public Long addAttend(EventAttendanceDetail eventAttendanceDetail) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", eventAttendanceDetail.getUserId());
+        params.put("createdAt", LocalDate.now());
+
+        // 이미 출석했을 시
+        if (!eventRepository.getTotalAttend(params).isEmpty()) {
+            throw new ApiException(ErrorCode.CONFLICT_USER_ATTENDANCE);
+        }
+
         EventInfo eventInfo = eventRepository.selectEventInfoByTypeCd(ComCode.ATTEND_EVENT.getCodeId());
         EventAttendanceDetail eventDetail = EventAttendanceDetail.builder()
                                                     .userId(eventAttendanceDetail.getUserId())
                                                     .eventInfoId(eventInfo.getEventInfoId()).build();
+
         return eventRepository.addAttendDay(eventDetail);
     };
 

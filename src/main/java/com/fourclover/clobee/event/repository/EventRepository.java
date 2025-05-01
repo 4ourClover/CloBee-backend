@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface EventRepository {
@@ -14,7 +15,7 @@ public interface EventRepository {
     List<EventInfo> getEventInfo(int comCodeId);
 
     // 출석 이벤트
-    List<EventAttendanceDetail> getTotalAttend(long userId);
+    List<EventAttendanceDetail> getTotalAttend(Map params);
     Long addAttendDay(EventAttendanceDetail attendanceDetail);
 
     // 클로버 찾기 이벤트
