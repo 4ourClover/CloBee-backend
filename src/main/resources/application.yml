@@ -20,6 +20,8 @@ spring:
       password: ${REDIS_PASSWORD}
   batch:
     secret: "clobee_clover1230"
+  app:
+    skip-phone-verification: true   # 테스트용으로만 true 설정
   security:
     oauth2:
       client:
