@@ -14,7 +14,7 @@
     </insert>
 
     <select id="findByEmail" resultType="UserInfo">
-        SELECT * FROM user_info WHERE user_email = #{email} AND is_deleted = false
+        SELECT * FROM user_info WHERE user_email = #{userEmail} AND is_deleted = false
     </select>
 
     <update id="updateUser" parameterType="UserInfo">

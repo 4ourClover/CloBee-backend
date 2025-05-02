@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -20,42 +21,30 @@ public class SecurityConfig {
 
     private final UserService userService;
 
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                .csrf(withDefaults())
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(
-//                                "/user/signup",
-//                                "/user/sendPhoneCode",
-//                                "/user/verifyPhoneCode",
-//                                "/login**",
-//                                "/oauth2/**",
-//                                "/user/signup/kakao",      // 카카오 회원가입 엔드포인트
-//                                "/user/login/kakao"        // 카카오 로그인 엔드포인트
-//                        ).permitAll()
-//                        .anyRequest().authenticated()
-//                )
-//                .oauth2Login(oauth -> oauth
-//                        .loginPage("/login")
-//                        // OAuth2 인증 성공 후 redirect 할 URL을 컨트롤러 매핑에 맞춰 변경
-//                        .defaultSuccessUrl("/user/login/kakao", true)
-//                        .userInfoEndpoint(userInfo -> userInfo
-//                                .userService(oauth2UserService())
-//                        )
-//                );
-//        return http.build();
-//    }
-
-    // 개발용
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())  // 개발 중에는 CSRF도 비활성화 추천
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()  // 모든 요청 허용
+                        .requestMatchers(
+                                HttpMethod.POST,"/user/signup/email",
+                                "/user/sendPhoneCode",
+                                "/user/verifyPhoneCode",
+                                "/login**",
+                                "/oauth2/**",
+                                "/user/signup/kakao",      // 카카오 회원가입 엔드포인트
+                                "/user/login/kakao"        // 카카오 로그인 엔드포인트
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 )
-                .oauth2Login(oauth -> oauth.disable()); // OAuth2 로그인도 비활성화
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/login")
+                        // OAuth2 인증 성공 후 redirect 할 URL을 컨트롤러 매핑에 맞춰 변경
+                        .defaultSuccessUrl("/user/login/kakao", true)
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oauth2UserService())
+                        )
+                );
         return http.build();
     }
 
