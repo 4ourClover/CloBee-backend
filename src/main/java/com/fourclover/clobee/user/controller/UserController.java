@@ -20,16 +20,16 @@ public class UserController {
 
     // SMS 코드 발송
     @PostMapping("/sendPhoneCode")
-    public ResponseEntity<Void> sendPhoneCode(@RequestParam String phone) {
-        userService.sendPhoneVerificationCode(phone);
+    public ResponseEntity<Void> sendPhoneCode(@RequestParam("user_phone") String userPhone) {
+        userService.sendPhoneVerificationCode(userPhone);
         return ResponseEntity.ok().build();
     }
 
     // SMS 코드 검증
     @PostMapping("/verifyPhoneCode")
-    public ResponseEntity<Void> verifyPhoneCode(@RequestParam String phone,
+    public ResponseEntity<Void> verifyPhoneCode(@RequestParam("user_phone") String userPhone,
                                                 @RequestParam String code) {
-        userService.verifyPhoneCode(phone, code);
+        userService.verifyPhoneCode(userPhone, code);
         return ResponseEntity.ok().build();
     }
 
