@@ -1,6 +1,7 @@
 package com.fourclover.clobee.card.service;
 
 import com.fourclover.clobee.card.domain.CardBenefitDetail;
+import com.fourclover.clobee.card.domain.CardListDTO;
 import com.fourclover.clobee.card.domain.CardPageDTO;
 
 import java.util.List;
@@ -12,4 +13,9 @@ public interface CardService {
 
     String getCardBrandUrlAndIncreaseApplyViews(Long cardInfoId, int cardBrand);
 
+    void addUserCard(Long userId, Long cardInfoId);
+
+    List<CardListDTO> getMyCardList(Long userId);
+
+    List<CardListDTO> searchCard(String cardName);
 }

@@ -10,7 +10,7 @@
         VALUES
             (#{userLoginType}, #{userEmail}, #{userPassword}, #{userNickname},
              #{userBirthday}, #{userPhone}, #{userInvitationCode},
-             #{phoneVerified}, #{agreedPrivacy}, NOW(), NOW())
+             #{userPhoneVerified}, #{userAgreedPrivacy}, NOW(), NOW())
     </insert>
 
     <select id="findByEmail" resultType="UserInfo">
@@ -20,7 +20,7 @@
     <update id="updateUser" parameterType="UserInfo">
         UPDATE user_info
         SET user_nickname        = #{userNickname},
-            user_agreed_privacy  = #{agreedPrivacy},
+            user_agreed_privacy  = #{userAgreedPrivacy},
             updated_at           = NOW()
         WHERE user_email = #{userEmail}
     </update>

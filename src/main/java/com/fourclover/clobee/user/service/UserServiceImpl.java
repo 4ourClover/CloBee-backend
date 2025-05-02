@@ -103,11 +103,11 @@ public class UserServiceImpl implements UserService {
             throw new ApiException(ErrorCode.PHONE_VERIFICATION_REQUIRED);
         }
         // 개인정보 동의 여부 확인
-        if (Boolean.FALSE.equals(dto.getAgreedPrivacy())) {
+        if (Boolean.FALSE.equals(dto.getUserAgreedPrivacy())) {
             throw new ApiException(ErrorCode.PRIVACY_NOT_AGREED);
         }
 
-        dto.setPhoneVerified(true);
+        dto.setUserPhoneVerified(true);
         dto.setUserLoginType(102);
         dto.setCreatedAt(LocalDateTime.now());
         dto.setUpdatedAt(LocalDateTime.now());
@@ -134,8 +134,8 @@ public class UserServiceImpl implements UserService {
         dto.setUserLoginType(101);              // 카카오 가입
         dto.setUserEmail(email);
         dto.setUserNickname(nickname);
-        dto.setAgreedPrivacy(agreedPrivacy);
-        dto.setPhoneVerified(false);
+        dto.setUserAgreedPrivacy(agreedPrivacy);
+        dto.setUserPhoneVerified(false);
         dto.setUserInvitationCode(UUID.randomUUID().toString().substring(0,10));
         dto.setCreatedAt(LocalDateTime.now());
         dto.setUpdatedAt(LocalDateTime.now());

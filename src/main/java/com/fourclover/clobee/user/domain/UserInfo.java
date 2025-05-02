@@ -40,11 +40,11 @@ public class UserInfo {
     private String userPhone;
 
     // Redis 검증 뒤 Controller 에서 true 세팅
-    private Boolean phoneVerified = false;
+    private Boolean userPhoneVerified = false;
 
     // 개인정보 이용 동의 체크
     @NotNull(message = "개인정보 이용 동의가 필요합니다.")
-    private Boolean agreedPrivacy = false;
+    private Boolean userAgreedPrivacy = false;
 
     // 탈퇴 여부
     private Boolean isDeleted = false;
