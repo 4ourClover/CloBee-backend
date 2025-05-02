@@ -13,20 +13,17 @@ spring:
       path: /api
   data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-      password: ${REDIS_PASSWORD}
-  app:
-    skip-phone-verification: true   # 테스트용으로만 true 설정
+      host: ${REDIS_HOST:192.168.1.176}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:clover2}
 
-# --- OAuth2 (Kakao) 설정 추가 ---
   security:
     oauth2:
       client:
         registration:
           kakao:
-            client-id: ${KAKAO_CLIENT_ID:YOUR_KAKAO_CLIENT_ID}
-            client-secret: ${KAKAO_CLIENT_SECRET:YOUR_KAKAO_SECRET}
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
             client-name: kakao
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
@@ -41,12 +38,12 @@ spring:
             user-name-attribute: id
 
 
-# --- SMS API 설정 바인딩 ---
-sms:
-  provider:
-    api-key: ${COOLSMS_API_KEY:NCS9L7FW0NVKHZUO}
-    api-secret: ${COOLSMS_API_SECRET:XC1QELXQQTH2ZNHQ5YUEXGEE5AYU5YZF}
-    sender-phone: ${COOLSMS_SENDER_PHONE:01024708701}
+  # --- SMS API 설정 바인딩 ---
+  sms:
+    api:
+      url: ${SMS_API_URL}
+      key: ${SMS_API_KEY}
+      secret: ${SMS_API_SECRET}
 
 mybatis:
   mapper-locations: classpath:mappers/*.xml
@@ -58,7 +55,3 @@ logging:
   level:
     org.mybatis: INFO
     org.springframework.jdbc: DEBUG
-#logging:
-#  level:
-#    io.lettuce.core: DEBUG
-#    org.springframework.data.redis.connection.lettuce: DEBUG
