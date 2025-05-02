@@ -7,15 +7,16 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface EventRepository {
-    // 출석 이벤트
-    List<EventAttendanceDetail> getTotalAttend(long userId);
-    Long addAttendDay(EventAttendanceDetail attendanceDetail);
+    // 전체 이벤트 중 특정 이벤트 내역 불러오기
+    List<EventInfo> getEventInfo(int comCodeId);
 
-    // 카드 이벤트
-    List<EventInfo> getCardEvents();
+    // 출석 이벤트
+    List<EventAttendanceDetail> getTotalAttend(Map params);
+    Long addAttendDay(EventAttendanceDetail attendanceDetail);
 
     // 클로버 찾기 이벤트
     EventFindingCloverDetail selectCloverDetailByUserId(@Param("userId") Long userId);

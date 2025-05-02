@@ -8,12 +8,13 @@ import com.fourclover.clobee.event.domain.EventFindingCloverDetail;
 import com.fourclover.clobee.event.domain.EventInfo;
 import com.fourclover.clobee.event.repository.EventRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -22,21 +23,33 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventAttendanceDetail> getTotalAttend(long userId) {
-        return eventRepository.getTotalAttend(userId);
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userId);
+        return eventRepository.getTotalAttend(params);
     }
 
     @Override
     public Long addAttend(EventAttendanceDetail eventAttendanceDetail) {
-        EventInfo eventInfo = eventRepository.selectEventInfoByTypeCd(602);
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", eventAttendanceDetail.getUserId());
+        params.put("createdAt", LocalDate.now());
+
+        // 이미 출석했을 시
+        if (!eventRepository.getTotalAttend(params).isEmpty()) {
+            throw new ApiException(ErrorCode.CONFLICT_USER_ATTENDANCE);
+        }
+
+        EventInfo eventInfo = eventRepository.selectEventInfoByTypeCd(ComCode.ATTEND_EVENT.getCodeId());
         EventAttendanceDetail eventDetail = EventAttendanceDetail.builder()
                                                     .userId(eventAttendanceDetail.getUserId())
                                                     .eventInfoId(eventInfo.getEventInfoId()).build();
+
         return eventRepository.addAttendDay(eventDetail);
     };
 
     @Override
     public List<EventInfo> getCardEvents() {
-        return eventRepository.getCardEvents();
+        return eventRepository.getEventInfo(ComCode.CARD_EVENT.getCodeId());
     }
 
     // 클로버 찾기 이벤트
@@ -45,9 +58,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFindingCloverDetail startCloverGame(Long userId, boolean invited) {
         // 스크립트로 미리 넣어둔 event_info 를 조회
-        EventInfo info = eventRepository.selectEventInfoByTypeCd(ComCode.CLOVER_FILL_EVENT.getCodeId());
+        EventInfo info = eventRepository.selectEventInfoByTypeCd(ComCode.CLOVER_FIND_EVENT.getCodeId());
         if (info == null) {
-            throw new RuntimeException("이벤트 정보를 찾을 수 없습니다.");
+            throw new ApiException(ErrorCode.EVENT_INFO_NOT_FOUND);
         }
 
         EventFindingCloverDetail d = eventRepository.selectCloverDetailByUserId(userId);
@@ -144,7 +157,7 @@ public class EventServiceImpl implements EventService {
     public EventFindingCloverDetail getCloverStatus(Long userId) {
         EventFindingCloverDetail d = eventRepository.selectCloverDetailByUserId(userId);
         if (d == null) {
-            throw new RuntimeException("게임 정보를 찾을 수 없습니다.");
+            throw new ApiException(ErrorCode.GAME_INFO_NOT_FOUND);
         }
         return d;
     }
