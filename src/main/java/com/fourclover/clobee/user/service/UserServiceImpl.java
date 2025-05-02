@@ -1,16 +1,20 @@
 package com.fourclover.clobee.user.service;
 
+import com.fourclover.clobee.config.SmsConfig;
 import com.fourclover.clobee.config.exception.ApiException;
 import com.fourclover.clobee.config.exception.ErrorCode;
 import com.fourclover.clobee.user.domain.UserInfo;
 import com.fourclover.clobee.user.repository.UserRepository;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
+import net.nurigo.sdk.message.exception.NurigoEmptyResponseException;
+import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
+import net.nurigo.sdk.message.exception.NurigoUnknownException;
+import net.nurigo.sdk.message.model.Message;
+import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -21,56 +25,48 @@ import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository; // MyBatis 매퍼 인터페이스로, DB의 user_info 테이블에 접근해 사용자 조회·등록
-    private final RedisTemplate<String, String> redisTemplate; // Redis에 SMS 인증 코드를 저장·조회하기 위해 사용
-    private final WebClient webClient; // SMS API 호출을 비동기 방식으로 수행하기 위한 Spring WebFlux 클라이언트
-    private final Validator validator; // @Valid 외에 직접 DTO 제약조건(Validation) 검사를 수행할 때 사용
+    private final UserRepository userRepository;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final Validator validator;
+    private final DefaultMessageService messageService;
+    private final SmsConfig smsConfig;
 
-    // SMS 전송용 외부 API의 URL 및 인증키를 @Value로 주입
-    @Value("${sms.api.url}")
-    private String smsApiUrl;
-    @Value("${sms.api.key}")
-    private String smsApiKey;
-    @Value("${sms.api.secret}")
-    private String smsApiSecret;
+
 
     public UserServiceImpl(
             UserRepository userRepository,
             RedisTemplate<String, String> redisTemplate,
-            WebClient.Builder webClientBuilder,
-            Validator validator)
-    {
+            Validator validator,
+            DefaultMessageService messageService,
+            SmsConfig smsConfig
+    ) {
         this.userRepository = userRepository;
         this.redisTemplate = redisTemplate;
-        this.webClient = webClientBuilder.build();
         this.validator = validator;
+        this.messageService = messageService;
+        this.smsConfig = smsConfig;
     }
 
     @Override
     public void sendPhoneVerificationCode(String phone) {
+        // 1) 6자리 랜덤 코드 생성
+        String code = String.format("%06d", new Random().nextInt(900_000) + 100_000);
 
-        // 인증코드를 6자리 숫자(000000 ~ 999999) 중 랜덤으로 생성
-        String code = String.format("%06d", new Random().nextInt(1_000_000));
-
-        // SMS API 호출
-        Map<String, Object> payload = Map.of(
-                "apiKey", smsApiKey,
-                "apiSecret", smsApiSecret,
-                "to", phone,
-                "text", "인증번호: " + code
-        );
-
-        // WebClient를 통해 SMS 공급자 API에 POST 요청을 보내 인증 코드를 전송
-        webClient.post()
-                .uri(smsApiUrl)
-                .bodyValue(payload)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block(); // .block()을 사용해 동기 호출로 처리(결과를 기다림).
-
-        // Redis에 5분 TTL 로 저장
+        // 2) Redis에 5분 만료로 저장
         redisTemplate.opsForValue()
                 .set("SMS_CODE:" + phone, code, Duration.ofMinutes(5));
+
+        // 3) COOL SMS 메시지 생성 및 전송
+        Message message = new Message();
+        message.setFrom(smsConfig.getSenderPhone());
+        message.setTo(phone);
+        message.setText("인증번호 [" + code + "]를 입력해주세요.");
+
+        try {
+            messageService.send(message);
+        } catch (NurigoMessageNotReceivedException | NurigoEmptyResponseException | NurigoUnknownException e) {
+            throw new ApiException(ErrorCode.SMS_SEND_FAILURE);
+        }
     }
 
     @Override
@@ -85,6 +81,10 @@ public class UserServiceImpl implements UserService {
         // 성공 시엔 register 단계에서 phoneVerified=true 로 처리
     }
 
+
+    @Value("${app.skip-phone-verification:true}")
+    private boolean skipPhoneVerification;
+
     @Override
     public void registerEmailUser(UserInfo dto) {
         // UserInfo에 지정된 @NotBlank, @Email, @Size 등 검사 수행
@@ -98,10 +98,19 @@ public class UserServiceImpl implements UserService {
             throw new ApiException(ErrorCode.EMAIL_DUPLICATION);
         }
         // 전화번호 인증 확인
-        String codeInRedis = redisTemplate.opsForValue().get("SMS_CODE:" + dto.getUserPhone());
-        if (codeInRedis == null) {
-            throw new ApiException(ErrorCode.PHONE_VERIFICATION_REQUIRED);
+//        String codeInRedis = redisTemplate.opsForValue().get("SMS_CODE:" + dto.getUserPhone());
+//        if (codeInRedis == null) {
+//            throw new ApiException(ErrorCode.PHONE_VERIFICATION_REQUIRED);
+//        }
+
+        // 전화번호 인증 스킵
+        if (!skipPhoneVerification) {
+            String codeInRedis = redisTemplate.opsForValue().get("SMS_CODE:" + dto.getUserPhone());
+            if (codeInRedis == null) {
+                throw new ApiException(ErrorCode.PHONE_VERIFICATION_REQUIRED);
+            }
         }
+
         // 개인정보 동의 여부 확인
         if (Boolean.FALSE.equals(dto.getUserAgreedPrivacy())) {
             throw new ApiException(ErrorCode.PRIVACY_NOT_AGREED);

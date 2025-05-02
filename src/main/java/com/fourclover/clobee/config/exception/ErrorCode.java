@@ -16,7 +16,7 @@ public enum ErrorCode {
     PRIVACY_NOT_AGREED(HttpStatus.BAD_REQUEST, "개인정보 이용 동의가 필요합니다."),
     VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "입력값이 유효하지 않습니다."),
     KAKAO_NEED_SIGNUP(HttpStatus.BAD_REQUEST, "카카오 회원가입이 필요합니다."),
-
+    SMS_SEND_FAILURE(HttpStatus.BAD_REQUEST,"SMS 전송 실패"),
     // EventService 관련
     // 400 Bad Request: 오늘은 이미 참여한 경우
     ALREADY_PARTICIPATED(HttpStatus.BAD_REQUEST, "오늘은 이미 참여하셨습니다."),

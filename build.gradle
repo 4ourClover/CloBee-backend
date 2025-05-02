@@ -36,8 +36,8 @@ dependencies {
 
     // SMS
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    // implementation 'net.nurigo:java-sdk:4.3.0'
-
+    // CoolSMS Java SDK
+    implementation 'net.nurigo:sdk:4.3.2'
     // PostgreSQL
     implementation 'org.postgresql:postgresql:42.7.3'
 
