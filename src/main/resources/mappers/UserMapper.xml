@@ -1,11 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fourclover.clobee.user.repository.UserRepository">
+
+    <insert id="insertUser" parameterType="UserInfo" useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO user_info
+        (user_login_type, user_email, user_password, user_nickname,
+         user_birthday, user_phone, user_invitation_code,
+         user_phone_verified, user_agreed_privacy, created_at, updated_at)
+        VALUES
+            (#{userLoginType}, #{userEmail}, #{userPassword}, #{userNickname},
+             #{userBirthday}, #{userPhone}, #{userInvitationCode},
+             #{userPhoneVerified}, #{userAgreedPrivacy}, NOW(), NOW())
+    </insert>
+
     <select id="findByEmail" resultType="UserInfo">
-        SELECT user_id
-        FROM user_info
-        WHERE user_email = #{username}
+        SELECT * FROM user_info WHERE user_email = #{email} AND is_deleted = false
     </select>
 
+    <update id="updateUser" parameterType="UserInfo">
+        UPDATE user_info
+        SET user_nickname        = #{userNickname},
+            user_agreed_privacy  = #{userAgreedPrivacy},
+            updated_at           = NOW()
+        WHERE user_email = #{userEmail}
+    </update>
 
 </mapper>
