@@ -7,7 +7,7 @@ import com.fourclover.clobee.event.domain.EventInfo;
 import java.util.List;
 
 public interface EventService {
-    List<EventAttendanceDetail> getTotalAttend(long userId);
+    List<String> getTotalAttend(long userId, String month);
     Long addAttend(EventAttendanceDetail eventAttendanceDetail);
 
     List<EventInfo> getCardEvents();

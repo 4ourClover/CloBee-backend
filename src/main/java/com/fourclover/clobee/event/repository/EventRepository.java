@@ -15,7 +15,7 @@ public interface EventRepository {
     List<EventInfo> getEventInfo(int comCodeId);
 
     // 출석 이벤트
-    List<EventAttendanceDetail> getTotalAttend(Map params);
+    List<String> getTotalAttend(Map params);
     Long addAttendDay(EventAttendanceDetail attendanceDetail);
 
     // 클로버 찾기 이벤트

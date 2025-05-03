@@ -24,8 +24,9 @@ public class EventController {
     }
 
     @GetMapping("/getTotalAttend")
-    public ResponseEntity<List<EventAttendanceDetail>> getTotalAttend(@RequestParam("userId") int userId) {
-        return ResponseEntity.ok(eventService.getTotalAttend(userId));
+    public ResponseEntity<List<String>> getTotalAttend(@RequestParam("userId") int userId,
+                                                       @RequestParam("month") String month) {
+        return ResponseEntity.ok(eventService.getTotalAttend(userId, month));
     }
 
     @PostMapping("/addAttend")

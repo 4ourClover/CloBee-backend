@@ -22,9 +22,10 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
 
     @Override
-    public List<EventAttendanceDetail> getTotalAttend(long userId) {
+    public List<String> getTotalAttend(long userId, String month) {
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
+        params.put("month", month);
         return eventRepository.getTotalAttend(params);
     }
 
