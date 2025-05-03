@@ -29,7 +29,7 @@ public class EventController {
     }
 
     @PostMapping("/addAttend")
-    public ResponseEntity addAttend(@RequestBody EventAttendanceDetail eventAttendanceDetail) {
+    public ResponseEntity<Object> addAttend(@RequestBody EventAttendanceDetail eventAttendanceDetail) {
         return ResponseEntity.ok(eventService.addAttend(eventAttendanceDetail));
     }
 

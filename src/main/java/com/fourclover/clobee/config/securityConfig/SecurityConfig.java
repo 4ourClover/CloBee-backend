@@ -21,30 +21,62 @@ public class SecurityConfig {
 
     private final UserService userService;
 
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(csrf -> csrf.disable())
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(
+//                                HttpMethod.POST,"/user/signup/email",
+//                                "/user/sendPhoneCode",
+//                                "/user/verifyPhoneCode",
+//                                "/login**",
+//                                "/oauth2/**",
+//                                "/user/signup/kakao",      // 카카오 회원가입 엔드포인트
+//                                "/user/login/kakao"        // 카카오 로그인 엔드포인트
+//                        ).permitAll()
+//                        .anyRequest().authenticated()
+//                )
+//                .oauth2Login(oauth -> oauth
+//                        .loginPage("/login")
+//                        // OAuth2 인증 성공 후 redirect 할 URL을 컨트롤러 매핑에 맞춰 변경
+//                        .defaultSuccessUrl("/user/login/kakao", true)
+//                        .userInfoEndpoint(userInfo -> userInfo
+//                                .userService(oauth2UserService())
+//                        )
+//                );
+//        return http.build();
+//    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(withDefaults()) // 로컬 CORS 허용 설정된 상태일 경우 필요
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                HttpMethod.POST,"/user/signup/email",
-                                "/user/sendPhoneCode",
-                                "/user/verifyPhoneCode",
-                                "/login**",
-                                "/oauth2/**",
-                                "/user/signup/kakao",      // 카카오 회원가입 엔드포인트
-                                "/user/login/kakao"        // 카카오 로그인 엔드포인트
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth -> oauth
-                        .loginPage("/login")
-                        // OAuth2 인증 성공 후 redirect 할 URL을 컨트롤러 매핑에 맞춰 변경
-                        .defaultSuccessUrl("/user/login/kakao", true)
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(oauth2UserService())
-                        )
+                        .anyRequest().permitAll()
                 );
+//                .csrf(csrf -> csrf.disable())
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(
+//                                HttpMethod.POST,"/user/signup/email",
+//                                "/user/sendPhoneCode",
+//                                "/user/verifyPhoneCode",
+//                                "/login**",
+//                                "/oauth2/**",
+//                                "/user/signup/kakao",      // 카카오 회원가입 엔드포인트
+//                                "/user/login/kakao"        // 카카오 로그인 엔드포인트
+//                        ).permitAll()
+//                        .anyRequest().authenticated()
+//                )
+//                .oauth2Login(oauth -> oauth
+//                        .loginPage("/login")
+//                        // OAuth2 인증 성공 후 redirect 할 URL을 컨트롤러 매핑에 맞춰 변경
+//                        .defaultSuccessUrl("/user/login/kakao", true)
+//                        .userInfoEndpoint(userInfo -> userInfo
+//                                .userService(oauth2UserService())
+//                        )
+//                );
         return http.build();
     }
 
