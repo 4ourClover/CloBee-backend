@@ -2,10 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fourclover.clobee.event.repository.EventRepository">
     <!-- 출석 이벤트 : 사용자별 출석 정보 불러오기 -->
-    <select id="getTotalAttend" parameterType="map" resultType="EventAttendanceDetail">
-        SELECT *
+    <select id="getTotalAttend" parameterType="map" resultType="String">
+        SELECT EXTRACT(DAY FROM created_at)::int AS created_at
         FROM event_attendance_detail
         WHERE user_id = #{userId}
+        <if test="month">
+            AND TO_CHAR(created_at, 'MM') = #{month}
+        </if>
         <if test="createdAt">
             AND TO_CHAR(created_at, 'YYYY-MM-DD') = TO_CHAR(#{createdAt}, 'YYYY-MM-DD')
         </if>
