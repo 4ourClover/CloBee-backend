@@ -33,16 +33,6 @@ public class CardController {
         return cardService.getCardBenefitDetail(cardInfoId);
     }
 
-//    // 카드 신청하기
-//    // http://localhost:8080/api/card/apply?cardInfoId=1470&cardBrand=302
-//    @GetMapping("/apply")
-//    public ResponseEntity<Void> applyCard(@RequestParam Long cardInfoId, @RequestParam int cardBrand) {
-//        String url = cardService.getCardBrandUrlAndIncreaseApplyViews(cardInfoId, cardBrand);
-//        return ResponseEntity.status(HttpStatus.FOUND)  // HttpStatus.FOUND는 302 Redirect를 의미
-//                .location(URI.create(url))
-//                .build();
-//    }
-
     // 카드 신청하기 URL 반환 (리다이렉트 대신 문자열 반환)
     @GetMapping("/apply")
     public ResponseEntity<String> applyCard(@RequestParam Long cardInfoId, @RequestParam int cardBrand) {
@@ -71,6 +61,8 @@ public class CardController {
     public List<CardListDTO> searchCards(@RequestParam String cardName) {
         return cardService.searchCard(cardName);
     }
+
+    // 카드 실적 가져오기
 
 
 }
