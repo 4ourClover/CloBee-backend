@@ -2,8 +2,6 @@ package com.fourclover.clobee.card.domain;
 
 import lombok.*;
 
-import java.sql.Timestamp;
-
 @Getter
 @Setter
 @Builder
@@ -15,6 +13,4 @@ public class UserCardPerformanceDetail {
     private int year;
     private int month;
     private int monthlyAmount;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
 }

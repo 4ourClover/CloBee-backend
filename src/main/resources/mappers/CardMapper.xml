@@ -57,21 +57,24 @@
     <!-- 내 카드 : 내 카드 추가 하기 -->
     <insert id="insertUserCard" parameterType="UserCardDetail">
         INSERT INTO user_card_detail (
-            user_id, card_info_id, user_card_type, user_card_brand,
-            user_card_number, user_card_cvc, user_card_name, user_card_expiration,
-            created_at, updated_at
+            user_id, card_info_id, user_card_type,created_at, updated_at
         ) VALUES (
-            #{userId}, #{cardInfoId}, #{userCardType}, #{userCardBrand},
-            #{userCardNumber}, #{userCardCvc}, #{userCardName}, #{userCardExpiration},
-            now(), now()
+            #{userId}, #{cardInfoId}, #{userCardType}, now(), now()
         )
     </insert>
 
     <!-- 내 카드 : 내 카드 목록 가져오기 -->
-    <select id="getMyCard" resultType="CardListDTO">
-        SELECT ci.card_info_id, ci.card_rank, ci.card_name, ci.card_brand,
-               ci.card_domestic_annual_fee, ci.card_global_annual_fee,
-               ci.card_type, ci.card_image_url
+    <select id="getMyCard" resultType="UserCardListDTO">
+        SELECT
+            ucd.user_card_id,
+            ci.card_info_id,
+            ci.card_rank,
+            ci.card_name,
+            ci.card_brand,
+            ci.card_domestic_annual_fee,
+            ci.card_global_annual_fee,
+            ci.card_type,
+            ci.card_image_url
         FROM card_info ci
                  INNER JOIN user_card_detail ucd ON ci.card_info_id = ucd.card_info_id
         WHERE ucd.user_id = #{userId}
@@ -94,5 +97,29 @@
         FROM user_card_detail
         WHERE user_id = #{userId} AND card_info_id = #{cardInfoId}
     </select>
+
+    <!-- 내 카드 : 실적 추가 -->
+    <insert id="insertMonthlyPerformance">
+        INSERT INTO user_card_performance_detail
+            (user_card_id, year, month, monthly_amount, created_at, updated_at)
+        VALUES (#{userCardId}, #{year}, #{month}, #{amount}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    </insert>
+
+    <!-- 내 카드 : 실적 수정 -->
+    <update id="updateMonthlyPerformance">
+        UPDATE user_card_performance_detail
+        SET monthly_amount = monthly_amount + #{monthlyAmount},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_card_id = #{userCardId}
+                  AND year = #{year}
+                  AND month = #{month}
+    </update>
+
+    <!-- 내 카드 : 실적 조회 -->
+    <select id="getPerformance" resultType="UserCardPerformanceDetail">
+        SELECT * FROM user_card_performance_detail
+        WHERE user_card_id = #{userCardId} AND year = #{year} AND month = #{month}
+    </select>
+
 
 </mapper>
