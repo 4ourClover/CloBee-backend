@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorCode {
     // UserService 관련
+    USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "유저를 찾을 수 없습니다."),
+    PHONE_DUPLICATION(HttpStatus.BAD_REQUEST, "이미 사용 중인 전화번호입니다."),
     EMAIL_DUPLICATION(HttpStatus.BAD_REQUEST, "이미 사용 중인 이메일입니다."),
     PHONE_VERIFICATION_REQUIRED(HttpStatus.BAD_REQUEST, "전화번호 인증이 필요합니다."),
     PHONE_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "인증 코드가 만료되었거나 존재하지 않습니다."),
@@ -16,6 +18,7 @@ public enum ErrorCode {
     PRIVACY_NOT_AGREED(HttpStatus.BAD_REQUEST, "개인정보 이용 동의가 필요합니다."),
     VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "입력값이 유효하지 않습니다."),
     KAKAO_NEED_SIGNUP(HttpStatus.BAD_REQUEST, "카카오 회원가입이 필요합니다."),
+    KAKAO_NICKNAME_NOT_FOUND(HttpStatus.BAD_REQUEST, "카카오 유저 닉네임을 찾을수 없습니다."),
     SMS_SEND_FAILURE(HttpStatus.BAD_REQUEST,"SMS 전송 실패"),
     // EventService 관련
     ALREADY_PARTICIPATED(HttpStatus.BAD_REQUEST, "오늘은 이미 참여하셨습니다."),
@@ -43,7 +46,13 @@ public enum ErrorCode {
     // 카드 추가 시 이미 등록한 카드일 경우
     CARD_ALREADY_REGISTERED(HttpStatus.CONFLICT, "이미 등록된 카드입니다."),
     // 카드 검색 시 검색어를 입력하지 않은 경우
-    EMPTY_SEARCH_KEYWORD(HttpStatus.BAD_REQUEST, "검색어를 입력해주세요.");
+    EMPTY_SEARCH_KEYWORD(HttpStatus.BAD_REQUEST, "검색어를 입력해주세요."),
+
+    // 인증/인가 관련
+    UNKNOWN_TOKEN_TYPE(HttpStatus.UNAUTHORIZED, "잘못된 토큰입니다."),
+    FAKE_TOKEN(HttpStatus.CONFLICT, "변조된 토큰입니다."),
+    PASSWORD_NOT_MATCH(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.")
+    ;
 
     private HttpStatus httpStatus;
     private String errorMessage;

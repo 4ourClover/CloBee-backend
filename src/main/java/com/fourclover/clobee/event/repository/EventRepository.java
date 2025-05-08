@@ -1,8 +1,6 @@
 package com.fourclover.clobee.event.repository;
 
-import com.fourclover.clobee.event.domain.EventAttendanceDetail;
-import com.fourclover.clobee.event.domain.EventFindingCloverDetail;
-import com.fourclover.clobee.event.domain.EventInfo;
+import com.fourclover.clobee.event.domain.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -20,9 +18,16 @@ public interface EventRepository {
 
     // 클로버 찾기 이벤트
     EventFindingCloverDetail selectCloverDetailByUserId(@Param("userId") Long userId);
+    List<EventFindingCloverDetail> selectCloverDetailByUserList();
     int insertCloverDetail(EventFindingCloverDetail detail);
     int updateCloverDetail(EventFindingCloverDetail detail);
 
     // findClover용 event_info 한 건 조회 (진행중인)
     EventInfo selectEventInfoByTypeCd(int eventTypeCd);
+
+    // 특정 이벤트 유형의 쿠폰 템플릿 조회
+    List<CouponTemplate> selectCouponTemplatesByEventType(int eventTypeCd);
+
+    // 쿠폰 발급용 insert 메서드
+    int insertCouponInfo(CouponInfo couponInfo);
 }

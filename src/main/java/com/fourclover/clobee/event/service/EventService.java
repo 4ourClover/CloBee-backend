@@ -12,6 +12,7 @@ public interface EventService {
 
     List<EventInfo> getCardEvents();
 
+    void initCloverGame();
     EventFindingCloverDetail startCloverGame(Long userId, boolean invitedByFriend);
     EventFindingCloverDetail processCloverAttempt(Long userId, boolean success);
     EventFindingCloverDetail getCloverStatus(Long userId);

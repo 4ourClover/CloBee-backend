@@ -33,20 +33,7 @@
     <select id="selectEventInfoByTypeCd"
             parameterType="int"
             resultType="EventInfo">
-        SELECT
-            event_info_id,
-            event_title,
-            event_desc,
-            event_type_cd,
-            event_start_day,
-            event_end_day,
-            event_status_cd,
-            event_card_url,
-            event_card_corp,
-            event_qr,
-            is_deleted,
-            created_at,
-            updated_at
+        SELECT *
         FROM event_info
         WHERE event_type_cd   = #{eventTypeCd}
           AND event_status_cd = 702
@@ -66,9 +53,17 @@
         LIMIT 1
     </select>
 
+    <!-- 모든 클로버 이벤트 정보 조회 다음 날 배치로 인해 모든 사용자 -->
+    <select id="selectCloverDetailByUserList"
+            resultType="EventFindingCloverDetail">
+        SELECT *
+        FROM event_finding_clover_detail
+        ORDER BY created_at DESC
+    </select>
+
     <!--  새 기록 삽입 -->
     <insert id="insertCloverDetail"
-            parameterType="com.fourclover.clobee.event.domain.EventFindingCloverDetail"
+            parameterType="EventFindingCloverDetail"
             useGeneratedKeys="true" keyProperty="eventFindingCloverId">
         INSERT INTO event_finding_clover_detail
         (event_info_id, user_id,
@@ -87,7 +82,7 @@
     </insert>
 
     <update id="updateCloverDetail"
-            parameterType="com.fourclover.clobee.event.domain.EventFindingCloverDetail">
+            parameterType="EventFindingCloverDetail">
         UPDATE event_finding_clover_detail
         SET
             event_finding_clover_participation_status = #{eventFindingCloverParticipationStatus},
@@ -97,4 +92,35 @@
             updated_at = NOW()
         WHERE event_finding_clover_id = #{eventFindingCloverId}
     </update>
+
+    <!--  이벤트 유형별 템플릿 조회 -->
+    <select id="selectCouponTemplatesByEventType"
+            parameterType="int"
+            resultType="CouponTemplate">
+        SELECT *
+        FROM coupon_template
+        WHERE event_type_cd = #{eventTypeCd}
+    </select>
+
+    <!--  쿠폰 발급 기록 저장 -->
+    <insert id="insertCouponInfo"
+            parameterType="CouponInfo"
+            useGeneratedKeys="true"
+            keyProperty="couponInfoId">
+        INSERT INTO coupon_info (
+            user_id,
+            template_id,
+            coupon_used_yn,
+            coupon_done_yn,
+            created_at,
+            updated_at
+        ) VALUES (
+                     #{userId},
+                     #{templateId},
+                     #{couponUsedYn},
+                     #{couponDoneYn},
+                     NOW(),
+                     NOW()
+                 )
+    </insert>
 </mapper>
