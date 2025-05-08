@@ -16,4 +16,8 @@ public interface UserRepository {
 
     // 카카오 회원가입 완료 후 프로필 업데이트
     void updateUser(UserInfo user);
+
+    UserInfo findById(@Param("userId") Long id);
+
+    UserInfo findByPhone(@Param("userPhone") String phone);
 }
