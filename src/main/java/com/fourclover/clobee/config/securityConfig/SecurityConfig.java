@@ -1,91 +1,86 @@
 package com.fourclover.clobee.config.securityConfig;
 
+import com.fourclover.clobee.token.JwtFilter;
 import com.fourclover.clobee.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserService userService;
-
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                .csrf(csrf -> csrf.disable())
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(
-//                                HttpMethod.POST,"/user/signup/email",
-//                                "/user/sendPhoneCode",
-//                                "/user/verifyPhoneCode",
-//                                "/login**",
-//                                "/oauth2/**",
-//                                "/user/signup/kakao",      // 카카오 회원가입 엔드포인트
-//                                "/user/login/kakao"        // 카카오 로그인 엔드포인트
-//                        ).permitAll()
-//                        .anyRequest().authenticated()
-//                )
-//                .oauth2Login(oauth -> oauth
-//                        .loginPage("/login")
-//                        // OAuth2 인증 성공 후 redirect 할 URL을 컨트롤러 매핑에 맞춰 변경
-//                        .defaultSuccessUrl("/user/login/kakao", true)
-//                        .userInfoEndpoint(userInfo -> userInfo
-//                                .userService(oauth2UserService())
-//                        )
-//                );
-//        return http.build();
-//    }
+    private final JwtFilter jwtFilter;
+    private final UserDetailsService userDetailsService;
+    private final BCryptPasswordEncoder encoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
-                .cors(withDefaults()) // 로컬 CORS 허용 설정된 상태일 경우 필요
+                .formLogin((auth) -> auth.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-                );
-//                .csrf(csrf -> csrf.disable())
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(
-//                                HttpMethod.POST,"/user/signup/email",
-//                                "/user/sendPhoneCode",
-//                                "/user/verifyPhoneCode",
-//                                "/login**",
-//                                "/oauth2/**",
-//                                "/user/signup/kakao",      // 카카오 회원가입 엔드포인트
-//                                "/user/login/kakao"        // 카카오 로그인 엔드포인트
-//                        ).permitAll()
-//                        .anyRequest().authenticated()
-//                )
-//                .oauth2Login(oauth -> oauth
-//                        .loginPage("/login")
-//                        // OAuth2 인증 성공 후 redirect 할 URL을 컨트롤러 매핑에 맞춰 변경
-//                        .defaultSuccessUrl("/user/login/kakao", true)
-//                        .userInfoEndpoint(userInfo -> userInfo
-//                                .userService(oauth2UserService())
-//                        )
-//                );
+                        .requestMatchers(
+                                "/oauth2/**",
+                                "/login/oauth2/code/kakao",
+                                "/user/**",
+                                "/error",
+                                "/event/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth -> oauth
+                        // OAuth2 로그인 후 리다이렉트할 URL
+                        .defaultSuccessUrl("/user/login/kakao", true)
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oauth2UserService())
+                        )
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
     public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
-        DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
-        return request -> {
-            OAuth2User oauth2User = delegate.loadUser(request);
-            // 로그인 시 등록된 유저만 로그인 처리, 없으면 ApiException 던져서 프론트가 /user/signup/kakao로 유도
-            userService.loginWithKakao(oauth2User);
-            return oauth2User;
-        };
+        return new DefaultOAuth2UserService();
     }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(encoder);
+        return authenticationManagerBuilder.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
+        corsConfiguration.setAllowedHeaders(List.of("*"));
+        corsConfiguration.setAllowedMethods(List.of("*"));
+        corsConfiguration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfiguration);
+
+        return source;
+    }
+
 }

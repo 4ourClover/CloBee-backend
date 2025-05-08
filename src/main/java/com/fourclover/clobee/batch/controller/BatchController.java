@@ -34,6 +34,13 @@ public class BatchController {
         return ResponseEntity.ok(batchService.getCardEventsInfo().toString());
     }
 
+    // 1일 1회 클로버 초기화 로직 수행 - 매일 새벽 0시 00분 실행
+    @Scheduled(cron = "0 0 0 * * *")
+    public ResponseEntity<String> runCloverInfoBatch() throws Exception {
+        batchService.initCloverInfo();
+        return ResponseEntity.ok(HttpStatus.ACCEPTED.toString());
+    }
+
     @PostMapping("/cardEvent")
     public ResponseEntity<String> CardEventInfoBatch(@RequestHeader("X-Secret-Key") String secret) throws Exception {
         // log.warn("secret key : {} {}", secretKey, secret);

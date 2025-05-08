@@ -1,13 +1,23 @@
 package com.fourclover.clobee.user.controller;
 
 import com.fourclover.clobee.user.domain.UserInfo;
+import com.fourclover.clobee.user.domain.request.LoginRequest;
+import com.fourclover.clobee.user.domain.request.RefreshRequest;
+import com.fourclover.clobee.user.domain.request.TempPasswordRequest;
+import com.fourclover.clobee.user.domain.response.FindEmailResponse;
+import com.fourclover.clobee.user.domain.response.TokenResponse;
 import com.fourclover.clobee.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -33,6 +43,13 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    // 임시 비밀번호 발급
+    @PostMapping("/temp-password")
+    public ResponseEntity<Void> sendTemporaryPassword(@RequestBody TempPasswordRequest request) {
+        userService.sendTemporaryPassword(request);
+        return ResponseEntity.ok().build();
+    }
+
     // 이메일 회원가입
     @PostMapping("/signup/email")
     public ResponseEntity<Void> signup(@Valid @RequestBody UserInfo dto) {
@@ -40,22 +57,55 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest dto, HttpServletRequest request) {
+        return ResponseEntity.ok(userService.login(dto, request));
+    }
+
+    // 토큰 리프레쉬
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshRequest dto, HttpServletRequest request) {
+        return ResponseEntity.ok(userService.refresh(dto, request));
+    }
+
     // 카카오 로그인
     @GetMapping("/login/kakao")
-    public ResponseEntity<UserInfo> kakaoLoginSuccess(@AuthenticationPrincipal OAuth2User oauthUser) {
-        UserInfo user = userService.loginWithKakao(oauthUser);
-        return ResponseEntity.ok(user);
+    public Object kakaoLoginSuccess(HttpServletResponse response, @AuthenticationPrincipal OAuth2User oauthUser) throws IOException {
+        userService.kakaoLoginSuccess(response, oauthUser);
+        return ResponseEntity.ok().build();
     }
 
     // 카카오 회원가입 (프론트에서 닉네임·동의 폼 제출)
     @PostMapping("/signup/kakao")
     public ResponseEntity<Void> kakaoSignup(
+            @RequestParam String email,
             @RequestParam String nickname,
-            @RequestParam Boolean agreedPrivacy,
-            @AuthenticationPrincipal OAuth2User oauthUser
+            @RequestParam Boolean agreedPrivacy
     ) {
-        String email = ((Map<String,Object>)oauthUser.getAttribute("kakao_account")).get("email").toString();
         userService.registerKakaoUser(email, nickname, agreedPrivacy);
         return ResponseEntity.ok().build();
+    }
+
+    // 이메일 찾기
+    @GetMapping("/find-email")
+    public ResponseEntity<FindEmailResponse> findEmail(@RequestParam String phone) {
+        return ResponseEntity.ok(userService.findEmail(phone));
+    }
+
+    // 에러 페이지 추가
+    @GetMapping("/error")
+    public ResponseEntity<Map<String, String>> error(@RequestParam(required = false) String message) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", message != null ? message : "An error occurred");
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserInfo> getCurrentUser(Authentication authentication) {
+
+        UserInfo userInfo = userService.authedUserInfo(authentication);
+        userInfo.setUserPassword(null);
+        return ResponseEntity.ok(userInfo);
     }
 }

@@ -25,4 +25,12 @@
         WHERE user_email = #{userEmail}
     </update>
 
+    <select id="findByPhone" resultType="UserInfo">
+        SELECT * FROM user_info WHERE user_phone = #{userPhone} AND is_deleted = false
+    </select>
+
+    <select id="findById" resultType="UserInfo">
+        SELECT * FROM user_info WHERE user_id = #{userId} AND is_deleted = false
+    </select>
+
 </mapper>

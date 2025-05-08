@@ -3,15 +3,14 @@ package com.fourclover.clobee.event.service;
 import com.fourclover.clobee.common.ComCode;
 import com.fourclover.clobee.config.exception.ApiException;
 import com.fourclover.clobee.config.exception.ErrorCode;
-import com.fourclover.clobee.event.domain.EventAttendanceDetail;
-import com.fourclover.clobee.event.domain.EventFindingCloverDetail;
-import com.fourclover.clobee.event.domain.EventInfo;
+import com.fourclover.clobee.event.domain.*;
 import com.fourclover.clobee.event.repository.EventRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,15 +41,27 @@ public class EventServiceImpl implements EventService {
 
         EventInfo eventInfo = eventRepository.selectEventInfoByTypeCd(ComCode.ATTEND_EVENT.getCodeId());
         EventAttendanceDetail eventDetail = EventAttendanceDetail.builder()
-                                                    .userId(eventAttendanceDetail.getUserId())
-                                                    .eventInfoId(eventInfo.getEventInfoId()).build();
+                .userId(eventAttendanceDetail.getUserId())
+                .eventInfoId(eventInfo.getEventInfoId()).build();
 
         return eventRepository.addAttendDay(eventDetail);
-    };
+    }
+
 
     @Override
     public List<EventInfo> getCardEvents() {
         return eventRepository.getEventInfo(ComCode.CARD_EVENT.getCodeId());
+    }
+
+    // 배치 프로그램 || 클로버 다음날되면 참여 여부 초기화
+    @Override
+    public void initCloverGame() {
+        List<EventFindingCloverDetail> userList = eventRepository.selectCloverDetailByUserList();
+
+        for (EventFindingCloverDetail eventFindingCloverDetail : userList) {
+            eventFindingCloverDetail.setEventFindingCloverParticipationStatus(false);
+            eventRepository.updateCloverDetail(eventFindingCloverDetail);
+        }
     }
 
     // 클로버 찾기 이벤트
@@ -76,13 +87,14 @@ public class EventServiceImpl implements EventService {
             d.setEventFindingCloverParticipationStatus(false);
             d.setEventFindingCloverCurrentStage(1);
             d.setEventFindingCloverReceiveCoupon(false);
-            d.setEventFindingCloverAttemptsLeft(5);
+            d.setEventFindingCloverAttemptsLeft(30);
             eventRepository.insertCloverDetail(d);
 
         } else if (invited) {
             // 친구 초대 시: 당일 참여 여부 완전 초기화 (시도 횟수 5회로)
             d.setEventFindingCloverParticipationStatus(false);
-            d.setEventFindingCloverAttemptsLeft(5);
+            d.setEventFindingCloverCurrentStage(1);
+            d.setEventFindingCloverAttemptsLeft(30);
             eventRepository.updateCloverDetail(d);
         }
 
@@ -114,9 +126,12 @@ public class EventServiceImpl implements EventService {
         if (success
                 && Boolean.TRUE.equals(d.getEventFindingCloverReceiveCoupon())
                 && Integer.valueOf(3).equals(d.getEventFindingCloverCurrentStage())) {
+            d.setEventFindingCloverCurrentStage(1);
+            d.setEventFindingCloverParticipationStatus(true);
+            eventRepository.updateCloverDetail(d);
             throw new ApiException(ErrorCode.COUPON_ALREADY_RECEIVED);
         }
-        
+
         // 시도 차감
         int left = d.getEventFindingCloverAttemptsLeft() - 1;
         d.setEventFindingCloverAttemptsLeft(left);
@@ -135,25 +150,44 @@ public class EventServiceImpl implements EventService {
             int nextStage = d.getEventFindingCloverCurrentStage() + 1;
             d.setEventFindingCloverCurrentStage(nextStage);
 
+            // 다음 스테이지 준비
+            d.setEventFindingCloverAttemptsLeft(30);
+
             if (nextStage > 3 && !d.getEventFindingCloverReceiveCoupon()) {
                 // 3단계 최초 클리어 -> 쿠폰 지급
                 d.setEventFindingCloverReceiveCoupon(true);
+
+                // 해당 이벤트의 쿠폰 템플릿 조회
+                List<CouponTemplate> templates = eventRepository
+                        .selectCouponTemplatesByEventType(ComCode.CLOVER_FIND_EVENT.getCodeId());
+                if (!templates.isEmpty()) {
+                    CouponTemplate tpl = templates.get(0);
+
+                    // 쿠폰 발급 정보 생성
+                    CouponInfo coupon = new CouponInfo();
+                    coupon.setUserId(d.getUserId());
+                    coupon.setTemplateId(tpl.getTemplateId());
+                    coupon.setCouponUsedYn(false);
+                    coupon.setCouponDoneYn(false);
+                    coupon.setCreatedAt(LocalDateTime.now());
+                    coupon.setUpdatedAt(LocalDateTime.now());
+                    eventRepository.insertCouponInfo(coupon);
+                }
+
             }
-            // 다음 스테이지 준비
-            d.setEventFindingCloverAttemptsLeft(5);
-        }
 
-        // 성공으로 3단계 돌파 시 게임 종료
-        if (success && d.getEventFindingCloverCurrentStage() > 3) {
-            d.setEventFindingCloverCurrentStage(1);
-            d.setEventFindingCloverParticipationStatus(true);
+            // 성공으로 3단계 돌파 시 게임 종료
+            if (d.getEventFindingCloverCurrentStage() > 3) {
+                d.setEventFindingCloverCurrentStage(1);
+                d.setEventFindingCloverParticipationStatus(true);
+            }
         }
-
         eventRepository.updateCloverDetail(d);
         return d;
     }
 
-    // 현재 상태 조회(테스트용 코드 / 추후 삭제)
+
+    // 사용자의 클로버 찾기 게임 현재 상태 조회
     @Override
     public EventFindingCloverDetail getCloverStatus(Long userId) {
         EventFindingCloverDetail d = eventRepository.selectCloverDetailByUserId(userId);
