@@ -20,6 +20,7 @@ public class EventInfo {
     private String eventCardCorp;
     private String eventQr;
     private String eventCardtype;
+    private boolean isHaveCard;
     private Boolean isDeleted;
     private Timestamp createdAt;
     private Timestamp updatedAt;

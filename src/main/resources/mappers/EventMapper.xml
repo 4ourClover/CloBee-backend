@@ -21,8 +21,8 @@
         RETURNING event_attendance_id
     </insert>
 
-    <!-- 진행중인 이벤트 불러오기 -->
-    <select id="getEventInfo" parameterType="int" resultType="EventInfo">
+    <!-- 카드사 : 진행중인 이벤트 불러오기 -->
+    <select id="getEventInfo" parameterType="map" resultType="EventInfo">
         SELECT
             event_info_id,
             event_title,
@@ -34,7 +34,12 @@
             event_card_url,
             event_card_corp,
             event_qr,
-            comCodeInfo.com_desc AS event_card_type,
+            comCodeInfo.com_desc AS event_card_type, (
+                SELECT CASE WHEN COUNT(1) = 0 THEN false ELSE true END AS is_have_card
+                FROM user_card_detail
+                WHERE user_id = #{userId}
+                  AND user_card_brand = eventInfo.event_card_corp
+            ) as is_have_card,
             eventInfo.is_deleted,
             eventInfo.created_at,
             eventInfo.updated_at
@@ -47,30 +52,7 @@
             ON eventInfo.event_card_corp = comCodeInfo.com_code_cd
         WHERE event_status_cd = 702
           AND event_type_cd = #{comCodeId}
-    </select>
-
-    <!-- findClover 이벤트 정보 단건 조회 -->
-    <select id="selectEventInfoByTypeCd"
-            parameterType="int"
-            resultType="EventInfo">
-        SELECT
-            event_info_id,
-            event_title,
-            event_desc,
-            event_type_cd,
-            event_start_day,
-            event_end_day,
-            event_status_cd,
-            event_card_url,
-            event_card_corp,
-            event_qr,
-            is_deleted,
-            created_at,
-            updated_at
-        FROM event_info
-        WHERE event_type_cd   = #{eventTypeCd}
-          AND event_status_cd = 702
-          AND CURRENT_DATE BETWEEN event_start_day AND event_end_day
+        ORDER BY is_have_card DESC
     </select>
 
     <!-- findClover 이벤트 정보 단건 조회 -->
