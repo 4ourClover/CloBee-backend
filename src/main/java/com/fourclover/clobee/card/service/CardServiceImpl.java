@@ -90,7 +90,7 @@ public class CardServiceImpl implements CardService {
 
     // 내 카드 조회하기
     @Override
-    public List<UserCardListDTO> getMyCardList(Long userId) {
+    public List<CardListDTO> getMyCardList(Long userId) {
         if (userId == null) {
             throw new ApiException(ErrorCode.INVALID_USER);
         }
@@ -119,11 +119,15 @@ public class CardServiceImpl implements CardService {
         }
     }
 
-
     // 카드 실적 조회
     @Override
     public UserCardPerformanceDetail getPerformance(Long userCardId, int year, int month) {
         return cardRepository.getPerformance(userCardId, year, month);
     }
 
+    // 내 카드 삭제하기
+    @Override
+    public void deleteUserCard(Long userId, Long cardInfoId) {
+        cardRepository.deleteUserCard(userId, cardInfoId);
+    }
 }

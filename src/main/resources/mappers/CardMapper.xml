@@ -64,7 +64,7 @@
     </insert>
 
     <!-- 내 카드 : 내 카드 목록 가져오기 -->
-    <select id="getMyCard" resultType="UserCardListDTO">
+    <select id="getMyCard" resultType="CardListDTO">
         SELECT
             ucd.user_card_id,
             ci.card_info_id,
@@ -120,6 +120,12 @@
         SELECT * FROM user_card_performance_detail
         WHERE user_card_id = #{userCardId} AND year = #{year} AND month = #{month}
     </select>
+
+    <!-- 내 카드 : 카드 삭제하기 -->
+    <delete id="deleteUserCard">
+        DELETE FROM user_card_detail
+        WHERE user_id = #{userId} AND card_info_id = #{cardInfoId}
+    </delete>
 
 
 </mapper>

@@ -1,6 +1,9 @@
 package com.fourclover.clobee.card.repository;
 
-import com.fourclover.clobee.card.domain.*;
+import com.fourclover.clobee.card.domain.CardBenefitDetail;
+import com.fourclover.clobee.card.domain.CardListDTO;
+import com.fourclover.clobee.card.domain.UserCardDetail;
+import com.fourclover.clobee.card.domain.UserCardPerformanceDetail;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -31,19 +34,21 @@ public interface CardRepository {
     CardListDTO findByCardInfoId(@Param("cardInfoId") Long cardInfoId);
 
     // 내 카드 리스트 가져오기
-    List<UserCardListDTO> getMyCard(@Param("userId") Long userId);
+    List<CardListDTO> getMyCard(@Param("userId") Long userId);
 
     // 카드 검색
     List<CardListDTO> searchCard(@Param("cardName") String cardName);
 
     boolean existsUserCard(@Param("userId") Long userId, @Param("cardInfoId") Long cardInfoId);
 
-    // 카드 실적
-
+    // 카드 실적 
     int updateMonthlyPerformance(UserCardPerformanceDetail detail);
     void insertMonthlyPerformance(UserCardPerformanceDetail detail);
-
+    // 카드 실적 조회
     UserCardPerformanceDetail getPerformance(@Param("userCardId") Long userCardId,
                                              @Param("year") int year,
                                              @Param("month") int month);
+
+    // 카드 삭제하기
+    void deleteUserCard(@Param("userId") Long userId, @Param("cardInfoId") Long cardInfoId);
 }

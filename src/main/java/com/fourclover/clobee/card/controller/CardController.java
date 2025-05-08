@@ -48,7 +48,7 @@ public class CardController {
     // 내 카드 리스트 불러오기
     // http://localhost:8080/api/card/getMyCardList?userId=1
     @GetMapping("/getMyCardList")
-    public List<UserCardListDTO> getMyCardList(@RequestParam Long userId) {
+    public List<CardListDTO> getMyCardList(@RequestParam Long userId) {
         return cardService.getMyCardList(userId);
     }
 
@@ -77,6 +77,13 @@ public class CardController {
         return ResponseEntity.ok(cardService.getPerformance(userCardId, year, month));
     }
 
+    // 내 카드에 추가된 카드 삭제하기
+    @DeleteMapping("/delCard")
+    public ResponseEntity<String> deleteUserCard(@RequestParam Long userId,
+                                                 @RequestParam Long cardInfoId) {
+        cardService.deleteUserCard(userId, cardInfoId);
+        return ResponseEntity.ok("카드가 삭제되었습니다.");
+    }
 }
 
 
