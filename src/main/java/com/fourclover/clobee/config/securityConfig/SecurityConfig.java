@@ -30,63 +30,33 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder encoder;
 
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-//                .csrf(csrf -> csrf.disable())
-//                .formLogin((auth) -> auth.disable())
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(
-//                                "/oauth2/**",
-//                                "/login/oauth2/code/kakao",
-//                                "/user/**",
-//                                "/error",
-//                                "/event/**"
-//                        ).permitAll()
-//                        .anyRequest().authenticated()
-//                )
-//                .oauth2Login(oauth -> oauth
-//                        // OAuth2 로그인 후 리다이렉트할 URL
-//                        .defaultSuccessUrl("/user/login/kakao", true)
-//                        .userInfoEndpoint(userInfo -> userInfo
-//                                .userService(oauth2UserService())
-//                        )
-//                )
-//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-//        return http.build();
-//    }
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+                .formLogin((auth) -> auth.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-                );
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(
-//                                HttpMethod.POST,"/user/signup/email",
-//                                "/user/sendPhoneCode",
-//                                "/user/verifyPhoneCode",
-//                                "/login**",
-//                                "/oauth2/**",
-//                                "/user/signup/kakao",      // 카카오 회원가입 엔드포인트
-//                                "/user/login/kakao"        // 카카오 로그인 엔드포인트
-//                        ).permitAll()
-//                        .anyRequest().authenticated()
-//                )
-//                .oauth2Login(oauth -> oauth
-//                        .loginPage("/login")
-//                        // OAuth2 인증 성공 후 redirect 할 URL을 컨트롤러 매핑에 맞춰 변경
-//                        .defaultSuccessUrl("/user/login/kakao", true)
-//                        .userInfoEndpoint(userInfo -> userInfo
-//                                .userService(oauth2UserService())
-//                        )
-//                );
+                        .requestMatchers(
+                                "/oauth2/**",
+                                "/login/oauth2/code/kakao",
+                                "/user/**",
+                                "/error",
+                                "/event/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth -> oauth
+                        // OAuth2 로그인 후 리다이렉트할 URL
+                        .defaultSuccessUrl("/user/login/kakao", true)
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oauth2UserService())
+                        )
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
 
 
     @Bean
