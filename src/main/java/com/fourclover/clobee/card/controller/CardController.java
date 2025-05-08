@@ -1,9 +1,6 @@
 package com.fourclover.clobee.card.controller;
 
-import com.fourclover.clobee.card.domain.CardBenefitDetail;
-import com.fourclover.clobee.card.domain.CardListDTO;
-import com.fourclover.clobee.card.domain.CardPageDTO;
-import com.fourclover.clobee.card.domain.UserCardDetail;
+import com.fourclover.clobee.card.domain.*;
 import com.fourclover.clobee.card.service.CardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +41,7 @@ public class CardController {
     // http://localhost:8080/api/card/addCard
     @PostMapping("/addCard")
     public ResponseEntity<String> addUserCard(@RequestBody UserCardDetail userCardDetail) {
-        cardService.addUserCard(userCardDetail.getUserId(), userCardDetail.getCardInfoId());
+        cardService.addUserCard(userCardDetail.getUserId(), userCardDetail.getCardInfoId() , userCardDetail.getUserCardType());
         return ResponseEntity.ok("카드 등록 완료");
     }
 
@@ -62,9 +59,31 @@ public class CardController {
         return cardService.searchCard(cardName);
     }
 
+    // 카드 실적 추가 및 업데이트
+    // http://localhost:8080/api/card/addPerformance
+    @PostMapping("/addPerformance")
+    public ResponseEntity<String> addPerformance(@RequestBody UserCardPerformanceDetail detail) {
+        cardService.addPerformance(detail);
+        return ResponseEntity.ok("실적이 반영되었습니다.");
+    }
+
     // 카드 실적 가져오기
+    // http://localhost:8080/api/card/getPerformance?userCardId=1&year=2025&month=5
+    @GetMapping("/getPerformance")
+    public ResponseEntity<UserCardPerformanceDetail> getPerformance(
+            @RequestParam Long userCardId,
+            @RequestParam int year,
+            @RequestParam int month) {
+        return ResponseEntity.ok(cardService.getPerformance(userCardId, year, month));
+    }
 
-
+    // 내 카드에 추가된 카드 삭제하기
+    @DeleteMapping("/delCard")
+    public ResponseEntity<String> deleteUserCard(@RequestParam Long userId,
+                                                 @RequestParam Long cardInfoId) {
+        cardService.deleteUserCard(userId, cardInfoId);
+        return ResponseEntity.ok("카드가 삭제되었습니다.");
+    }
 }
 
 

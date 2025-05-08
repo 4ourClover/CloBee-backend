@@ -1,9 +1,6 @@
 package com.fourclover.clobee.card.service;
 
-import com.fourclover.clobee.card.domain.CardBenefitDetail;
-import com.fourclover.clobee.card.domain.CardListDTO;
-import com.fourclover.clobee.card.domain.CardPageDTO;
-import com.fourclover.clobee.card.domain.UserCardDetail;
+import com.fourclover.clobee.card.domain.*;
 import com.fourclover.clobee.card.repository.CardRepository;
 import com.fourclover.clobee.config.exception.ApiException;
 import com.fourclover.clobee.config.exception.ErrorCode;
@@ -71,7 +68,7 @@ public class CardServiceImpl implements CardService {
 
     // 내 카드 추가하기
     @Override
-    public void addUserCard(Long userId, Long cardInfoId) {
+    public void addUserCard(Long userId, Long cardInfoId, Integer userCardType) {
         CardListDTO card = cardRepository.findByCardInfoId(cardInfoId);
         if (card == null) {
             throw new ApiException(ErrorCode.CARD_NOT_FOUND);
@@ -110,5 +107,27 @@ public class CardServiceImpl implements CardService {
         }
 
         return cardRepository.searchCard("%" + cardName + "%");
+    }
+
+    // 카드 실적 추가 및 업데이트
+    @Transactional
+    @Override
+    public void addPerformance(UserCardPerformanceDetail detail) {
+        int updated = cardRepository.updateMonthlyPerformance(detail);
+        if (updated == 0) {
+            cardRepository.insertMonthlyPerformance(detail);
+        }
+    }
+
+    // 카드 실적 조회
+    @Override
+    public UserCardPerformanceDetail getPerformance(Long userCardId, int year, int month) {
+        return cardRepository.getPerformance(userCardId, year, month);
+    }
+
+    // 내 카드 삭제하기
+    @Override
+    public void deleteUserCard(Long userId, Long cardInfoId) {
+        cardRepository.deleteUserCard(userId, cardInfoId);
     }
 }

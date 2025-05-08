@@ -6,13 +6,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /*
-한 페이지에 보여줄 데이터 리스트
+카드 데이터 리스트
  */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CardListDTO {
+    private Long userCardId;
     private Long cardInfoId;
     private int cardRank;
     private String cardName;
