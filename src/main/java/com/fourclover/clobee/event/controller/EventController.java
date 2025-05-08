@@ -19,12 +19,12 @@ public class EventController {
     }
 
     @GetMapping("/getCardEvent")
-    public ResponseEntity<List<EventInfo>> getCardEvent() {
-        return ResponseEntity.ok(eventService.getCardEvents());
+    public ResponseEntity<List<EventInfo>> getCardEvent(@RequestParam(value = "userId", required = false) Long userId) {
+        return ResponseEntity.ok(eventService.getCardEvents(userId));
     }
 
     @GetMapping("/getTotalAttend")
-    public ResponseEntity<List<String>> getTotalAttend(@RequestParam("userId") int userId,
+    public ResponseEntity<List<String>> getTotalAttend(@RequestParam("userId") long userId,
                                                        @RequestParam("month") String month) {
         return ResponseEntity.ok(eventService.getTotalAttend(userId, month));
     }
