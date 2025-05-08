@@ -46,7 +46,31 @@
             ) comCodeInfo
             ON eventInfo.event_card_corp = comCodeInfo.com_code_cd
         WHERE event_status_cd = 702
-        AND event_type_cd = #{comCodeId}
+          AND event_type_cd = #{comCodeId}
+    </select>
+
+    <!-- findClover 이벤트 정보 단건 조회 -->
+    <select id="selectEventInfoByTypeCd"
+            parameterType="int"
+            resultType="EventInfo">
+        SELECT
+            event_info_id,
+            event_title,
+            event_desc,
+            event_type_cd,
+            event_start_day,
+            event_end_day,
+            event_status_cd,
+            event_card_url,
+            event_card_corp,
+            event_qr,
+            is_deleted,
+            created_at,
+            updated_at
+        FROM event_info
+        WHERE event_type_cd   = #{eventTypeCd}
+          AND event_status_cd = 702
+          AND CURRENT_DATE BETWEEN event_start_day AND event_end_day
     </select>
 
     <!-- findClover 이벤트 정보 단건 조회 -->
@@ -67,8 +91,8 @@
         SELECT *
         FROM event_finding_clover_detail
         WHERE user_id = #{userId}
-        -- 오늘(현재 날짜) 기록만 조회하려면 아래 한 줄 추가
-        AND DATE(created_at) = CURRENT_DATE
+          -- 오늘(현재 날짜) 기록만 조회하려면 아래 한 줄 추가
+          AND DATE(created_at) = CURRENT_DATE
         ORDER BY created_at DESC
         LIMIT 1
     </select>
@@ -135,12 +159,12 @@
             created_at,
             updated_at
         ) VALUES (
-                     #{userId},
-                     #{templateId},
-                     #{couponUsedYn},
-                     #{couponDoneYn},
-                     NOW(),
-                     NOW()
-                 )
+            #{userId},
+            #{templateId},
+            #{couponUsedYn},
+            #{couponDoneYn},
+            NOW(),
+            NOW()
+        )
     </insert>
 </mapper>

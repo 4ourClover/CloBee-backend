@@ -10,9 +10,9 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-  mvc:
-    servlet:
-      path: /api
+#  mvc:
+#    servlet:
+#      path: /server
   data:
     redis:
       host: ${REDIS_HOST}
