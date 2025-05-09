@@ -53,6 +53,7 @@
         WHERE event_status_cd = 702
           AND event_type_cd = #{comCodeId}
         ORDER BY is_have_card DESC
+        LIMIT #{size} OFFSET #{offset}
     </select>
 
     <!-- findClover 이벤트 정보 단건 조회 -->

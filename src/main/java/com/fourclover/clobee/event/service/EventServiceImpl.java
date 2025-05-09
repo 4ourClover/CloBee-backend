@@ -49,10 +49,12 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public List<EventInfo> getCardEvents(Long userId) {
+    public List<EventInfo> getCardEvents(Long userId, int pageSize, int pageNumber) {
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId != null ? userId : 0L);
         params.put("comCodeId", ComCode.CARD_EVENT.getCodeId());
+        params.put("size", pageSize);
+        params.put("offset", (pageNumber - 1) * pageSize);
         return eventRepository.getEventInfo(params);
     }
 

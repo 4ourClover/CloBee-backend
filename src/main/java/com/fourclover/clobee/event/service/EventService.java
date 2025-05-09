@@ -10,7 +10,7 @@ public interface EventService {
     List<String> getTotalAttend(long userId, String month);
     Long addAttend(EventAttendanceDetail eventAttendanceDetail);
 
-    List<EventInfo> getCardEvents(Long userId);
+    List<EventInfo> getCardEvents(Long userId, int pageSize, int pageNumber);
 
     void initCloverGame();
     EventFindingCloverDetail startCloverGame(Long userId, boolean invitedByFriend);
