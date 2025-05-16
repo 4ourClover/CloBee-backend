@@ -22,19 +22,22 @@ public class EnvLoader implements EnvironmentPostProcessor {
             // 현재 IP 확인
             String hostAddress = InetAddress.getLocalHost().getHostAddress();
             // 기본 : .env.local 로드
-            Dotenv dotenv = Dotenv.configure().filename(".env.local").load();
+            Dotenv dotenv = null;
 
             if ("127.0.0.1".equals(hostAddress) || "localhost".equals(hostAddress)) {
+                dotenv = Dotenv.configure().filename(".env.local").ignoreIfMissing().load();
                 log.info(".env.local for localhost");
             } else {
-                dotenv = Dotenv.configure().filename(".env.prod").ignoreIfMissing().load();
+                //dotenv = Dotenv.configure().filename(".env.prod").ignoreIfMissing().load();
                 log.info(".env file for IP: " + hostAddress);
             }
 
             Map<String, Object> envMap = new HashMap<>();
-            dotenv.entries().forEach(entry -> envMap.put(entry.getKey(), entry.getValue()));
+            if (dotenv != null) {
+                dotenv.entries().forEach(entry -> envMap.put(entry.getKey(), entry.getValue()));
 
-            environment.getPropertySources().addFirst(new MapPropertySource("dotenv", envMap));
+                environment.getPropertySources().addFirst(new MapPropertySource("dotenv", envMap));
+            }
         } catch (UnknownHostException e) {
             log.error("Error loading environment properties", e);
         }
