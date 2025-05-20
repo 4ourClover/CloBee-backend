@@ -3,14 +3,22 @@
 <mapper namespace="com.fourclover.clobee.card.repository.CardRepository">
 
     <!-- 카드 : 전체 신용 카드 페이지로 보기 -->
-    <select id="allCardPaging" resultType="CardListDTO">
-        SELECT card_info_id, card_rank, card_name, card_brand,
-               card_domestic_annual_fee, card_global_annual_fee,
-               card_type, card_image_url
-        FROM card_info
-        WHERE card_type = #{cardType}
-        ORDER BY card_rank
-        LIMIT #{size} OFFSET #{offset}
+    <select id="allCardPaging" resultType="com.fourclover.clobee.card.domain.CardListDTO">
+        SELECT ci.card_info_id,
+               ci.card_rank,
+               ci.card_name,
+               ci.card_brand,
+               cci.com_desc AS card_brand_name,
+               ci.card_domestic_annual_fee,
+               ci.card_global_annual_fee,
+               ci.card_type,
+               ci.card_image_url
+        FROM card_info ci
+                 LEFT JOIN com_code_info cci
+                           ON ci.card_brand = cci.com_code_cd AND cci.com_group_id = 300
+        WHERE ci.card_type = #{cardType}
+        ORDER BY ci.card_rank
+            LIMIT #{size} OFFSET #{offset}
     </select>
 
     <!-- 카드 : 전체 신용 카드 개수 -->
