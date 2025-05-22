@@ -135,5 +135,12 @@
         WHERE user_id = #{userId} AND card_info_id = #{cardInfoId}
     </delete>
 
+    <!-- 카드 이름으로 카드 아이디 조회 (단일 결과) -->
+    <select id="findCardIdByName" parameterType="String" resultType="Long">
+        SELECT card_info_id
+        FROM card_info
+        WHERE card_name = #{cardName}
+            LIMIT 1
+    </select>
 
 </mapper>

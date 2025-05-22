@@ -84,6 +84,13 @@ public class CardController {
         cardService.deleteUserCard(userId, cardInfoId);
         return ResponseEntity.ok("카드가 삭제되었습니다.");
     }
+
+    // 카드 id 가져오기
+    // http://localhost:8080/api/card/getCardId?cardName=삼성카드%20taptap
+    @GetMapping("/getCardId")
+    public ResponseEntity<Long> getCardId(@RequestParam String cardName) {
+        return ResponseEntity.ok(cardService.getCardId(cardName));
+    }
 }
 
 

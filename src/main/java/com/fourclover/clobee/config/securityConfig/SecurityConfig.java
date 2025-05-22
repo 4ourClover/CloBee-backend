@@ -37,14 +37,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .formLogin((auth) -> auth.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/oauth2/**",
-                                "/login/oauth2/code/kakao",
-                                "/user/**",
-                                "/error",
-                                "/event/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
+                                .anyRequest().permitAll()
+//                        .requestMatchers(
+//                                "/oauth2/**",
+//                                "/login/oauth2/code/kakao",
+//                                "/user/**",
+//                                "/error",
+//                                "/event/**"
+//                        ).permitAll()
+//                        .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
                         // OAuth2 로그인 후 리다이렉트할 URL
