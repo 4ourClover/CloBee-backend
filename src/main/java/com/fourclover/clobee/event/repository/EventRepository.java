@@ -32,31 +32,5 @@ public interface EventRepository {
     int insertCouponInfo(CouponInfo couponInfo);
 
     // 친구 초대 이벤트
-    Integer findUserIdByInvitationCode(String invitationCode);
 
-    boolean existsByInvitedUser(int invitedUserId);
-
-    void insertEventFriendLog(EventFriends eventFriends);
-
-    Integer getRouletteCount(@Param("eventInfoId") int eventInfoId,
-                             @Param("userId") int userId);
-
-    void insertEventFriendDetail(@Param("eventInfoId") int eventInfoId,
-                                 @Param("userId") int userId);
-
-    void increaseRouletteCount(@Param("eventInfoId") int eventInfoId,
-                               @Param("userId") int userId);
-
-    void decreaseRouletteCount(@Param("eventInfoId") int eventInfoId,
-                               @Param("userId") int userId);
-
-    String getInvitationCodeByUserId(int userId);
-
-    CouponTemplate pickRandomCoupon(int eventTypeCd);
-
-    boolean existsUserCoupon(@Param("userId") int userId,
-                             @Param("templateId") int templateId);
-
-    void insertCoupon(@Param("userId") int userId,
-                      @Param("templateId") int templateId);
 }
