@@ -40,7 +40,6 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .formLogin((auth) -> auth.disable())
                 .authorizeHttpRequests(auth -> auth
-<<<<<<< HEAD
                         .requestMatchers(
                                 "/oauth2/**",
                                 "/login/oauth2/code/kakao",
@@ -49,17 +48,6 @@ public class SecurityConfig {
                                 "/event/**"
                         ).permitAll()
                         .anyRequest().authenticated()
-=======
-                                .anyRequest().permitAll()
-//                        .requestMatchers(
-//                                "/oauth2/**",
-//                                "/login/oauth2/code/kakao",
-//                                "/user/**",
-//                                "/error",
-//                                "/event/**"
-//                        ).permitAll()
-//                        .anyRequest().authenticated()
->>>>>>> 957461c832dca458c1b00038242b52f8914d833e
                 )
                 // 예외 처리 설정 추가
                 .exceptionHandling(exc -> exc
@@ -98,8 +86,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
-
 
     @Bean
     public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
