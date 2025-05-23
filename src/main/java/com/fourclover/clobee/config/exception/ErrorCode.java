@@ -51,7 +51,9 @@ public enum ErrorCode {
     // 인증/인가 관련
     UNKNOWN_TOKEN_TYPE(HttpStatus.UNAUTHORIZED, "잘못된 토큰입니다."),
     FAKE_TOKEN(HttpStatus.CONFLICT, "변조된 토큰입니다."),
-    PASSWORD_NOT_MATCH(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.")
+    PASSWORD_NOT_MATCH(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다."),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
+    AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "인증에 실패했습니다."),
     ;
 
     private HttpStatus httpStatus;

@@ -327,23 +327,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserInfo authedUserInfo(Authentication authentication) {
-        Object principal = authentication.getPrincipal();
-        String email = null;
-
-        if (principal instanceof UserDetails) {
-            email = ((UserDetails) principal).getUsername();
-        } else if (principal instanceof OAuth2User) {
-            email = ((OAuth2User) principal).getAttribute("email");
-        } else {
-            throw new IllegalStateException(principal.getClass() + "은 올바르지 않습니다.");
+        // 컨트롤러에서 체크하지만 추가 안전 장치로 여기서도 체크
+        if (authentication == null) {
+            throw new ApiException(ErrorCode.UNAUTHORIZED);
         }
 
-        UserInfo userInfo = userRepository.findByEmail(email);
-        if (userInfo == null) {
-            throw new IllegalArgumentException(email + "로 등록된 이메일 정보를 찾을수 없습니다.");
-        }
+        try {
+            Object principal = authentication.getPrincipal();
+            String email = null;
 
-        return userInfo;
+            if (principal instanceof UserDetails) {
+                email = ((UserDetails) principal).getUsername();
+            } else if (principal instanceof OAuth2User) {
+                email = ((OAuth2User) principal).getAttribute("email");
+            } else {
+                throw new ApiException(ErrorCode.AUTHENTICATION_FAILED);
+            }
+
+            UserInfo userInfo = userRepository.findByEmail(email);
+            if (userInfo == null) {
+                throw new ApiException(ErrorCode.USER_NOT_FOUND);
+            }
+
+            return userInfo;
+        } catch (NullPointerException e) {
+            // getPrincipal() 또는 다른 메서드에서 NPE가 발생할 경우
+            throw new ApiException(ErrorCode.AUTHENTICATION_FAILED);
+        } catch (ClassCastException e) {
+            // 타입 변환 실패 시
+            throw new ApiException(ErrorCode.AUTHENTICATION_FAILED);
+        }
     }
 
     private String extractEmail(OAuth2User oauth2User) {
@@ -383,4 +396,74 @@ public class UserServiceImpl implements UserService {
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
     }
+
+    @Override
+    public boolean checkEmailExists(String email) {
+        return userRepository.findByEmail(email) != null;
+    }
+
+    @Override
+    public boolean checkPhoneExists(String phone) {
+        return userRepository.findByPhone(phone) != null;
+    }
+
+    @Override
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        // 세션에서 토큰 가져오기
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            // 액세스 토큰 및 리프레시 토큰 무효화
+            String accessToken = (String) session.getAttribute("accessToken");
+            String refreshToken = (String) session.getAttribute("refreshToken");
+
+            if (accessToken != null) {
+                // Redis에 저장된 토큰을 블랙리스트에 추가하거나 삭제
+                // 실제 토큰 만료시간만큼 유지
+                try {
+                    Long userId = jwtService.extractUserId(accessToken);
+                    UserInfo user = userRepository.findById(userId);
+                    if (user != null) {
+                        user.setUserAccessToken(null);
+                        user.setUserRefreshToken(null);
+                        userRepository.updateUser(user);
+                    }
+                } catch (Exception e) {
+                    // 토큰이 이미 만료되었거나 유효하지 않은 경우 무시
+                }
+            }
+
+            // 세션 무효화
+            session.invalidate();
+        }
+
+        // 쿠키 삭제
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName()) || "refreshToken".equals(cookie.getName())) {
+                    cookie.setValue("");
+                    cookie.setPath("/");
+                    cookie.setMaxAge(0); // 쿠키 즉시 만료
+                    response.addCookie(cookie);
+                }
+            }
+        }
+
+        // 명시적으로 새 쿠키를 만들어 덮어씌우기
+        Cookie accessTokenCookie = new Cookie("accessToken", "");
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(true);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(0);
+
+        Cookie refreshTokenCookie = new Cookie("refreshToken", "");
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(0);
+
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
+    }
+
 }

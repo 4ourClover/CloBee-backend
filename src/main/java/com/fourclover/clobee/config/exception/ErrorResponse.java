@@ -1,18 +1,20 @@
 package com.fourclover.clobee.config.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class ErrorResponse {
-    private String errorMessage;
-    private int status;
+    private final int status;
+    private final String code;
+    private final String message;
 
-    private ErrorResponse(final ErrorCode errorCode) {
-        this.errorMessage = errorCode.getErrorMessage();
-        this.status = errorCode.getHttpStatus().value();
-    }
-
-    public static ErrorResponse of(final ErrorCode errorCode) {
-        return new ErrorResponse(errorCode);
+    public static ErrorResponse of(ErrorCode errorCode) {
+        return new ErrorResponse(
+                errorCode.getHttpStatus().value(),
+                errorCode.name(),
+                errorCode.getErrorMessage()
+        );
     }
 }
