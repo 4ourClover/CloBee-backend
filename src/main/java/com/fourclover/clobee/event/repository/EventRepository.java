@@ -9,8 +9,8 @@ import java.util.Map;
 
 @Mapper
 public interface EventRepository {
-    // 전체 이벤트 중 특정 이벤트 내역 불러오기
-    List<EventInfo> getEventInfo(int comCodeId);
+    // 카드사 이벤트
+    List<EventInfo> getEventInfo(Map params);
 
     // 출석 이벤트
     List<String> getTotalAttend(Map params);

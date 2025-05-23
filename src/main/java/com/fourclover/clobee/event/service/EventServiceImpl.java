@@ -53,8 +53,11 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public List<EventInfo> getCardEvents() {
-        return eventRepository.getEventInfo(ComCode.CARD_EVENT.getCodeId());
+    public List<EventInfo> getCardEvents(Long userId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userId != null ? userId : 0L);
+        params.put("comCodeId", ComCode.CARD_EVENT.getCodeId());
+        return eventRepository.getEventInfo(params);
     }
 
     // 배치 프로그램 || 클로버 다음날되면 참여 여부 초기화

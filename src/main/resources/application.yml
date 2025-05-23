@@ -1,18 +1,18 @@
 spring:
   application:
     name: clobee
-  profiles:
-    active: local
-  config:
-    import: optional:file:.env.local[.properties]
+#  profiles:
+#    active: local
+#  config:
+#    import: optional:file:.env.local[.properties]
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-#  mvc:
-#    servlet:
-#      path: /server
+  mvc:
+    servlet:
+      path: /api
   data:
     redis:
       host: ${REDIS_HOST}

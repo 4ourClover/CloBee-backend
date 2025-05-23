@@ -8,7 +8,7 @@ public interface EventService {
     List<String> getTotalAttend(long userId, String month);
     Long addAttend(EventAttendanceDetail eventAttendanceDetail);
 
-    List<EventInfo> getCardEvents();
+    List<EventInfo> getCardEvents(Long userId);
 
     void initCloverGame();
     EventFindingCloverDetail startCloverGame(Long userId, boolean invitedByFriend);
