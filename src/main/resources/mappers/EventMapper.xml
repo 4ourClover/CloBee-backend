@@ -123,4 +123,82 @@
                      NOW()
                  )
     </insert>
+
+    <!-- 친구 초대 이벤트 : 초대 코드가 유효한지 확인 -->
+    <select id="findUserIdByInvitationCode" resultType="int">
+        SELECT user_id FROM user_info WHERE user_invitation_code = #{invitationCode}
+    </select>
+
+    <!-- 친구 초대 이벤트 : 초대 로그 추가 -->
+    <insert id="insertEventFriendLog">
+        INSERT INTO event_friends_log (
+            event_info_id,
+            event_friends_inviter_user_id,
+            event_friends_invited_user_id,
+            event_freinds_id
+        )
+        VALUES (
+                   #{eventInfoId},
+                   #{inviterUserId},
+                   #{invitedUserId},
+                   (SELECT event_friends_id FROM event_friends_detail
+                    WHERE event_info_id = #{eventInfoId}
+                      AND user_id = #{inviterUserId})
+               )
+    </insert>
+
+
+    <!-- 친구 초대 이벤트 : 룰렛 횟수 수정 -->
+    <select id="getRouletteCount" resultType="int">
+        SELECT event_friends_roulette_current_count FROM event_friends_detail
+        WHERE event_info_id = #{eventInfoId}
+          AND user_id = #{userId}
+    </select>
+
+    <!-- 친구 초대 이벤트 :  -->
+    <insert id="insertEventFriendDetail">
+        INSERT INTO event_friends_detail (event_info_id, user_id, event_friends_roulette_count_limit, event_friends_roulette_current_count)
+        VALUES (#{eventInfoId}, #{userId}, 0, 0)
+    </insert>
+
+    <update id="increaseRouletteCount">
+        UPDATE event_friends_detail
+        SET roulette_count = roulette_count + 1,
+        updated_at = CURRENT_TIMESTAMP
+        WHERE event_info_id = #{eventInfoId}
+        AND user_id = #{userId}
+        AND roulette_count < 3
+    </update>
+
+    <update id="decreaseRouletteCount">
+        UPDATE event_friends_detail
+        SET roulette_count = roulette_count - 1,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE event_info_id = #{eventInfoId}
+          AND user_id = #{userId}
+          AND roulette_count > 0
+    </update>
+
+    <select id="getInvitationCodeByUserId" resultType="string">
+        SELECT user_invitation_code FROM user_info WHERE user_id = #{userId}
+    </select>
+
+    <select id="pickRandomCoupon" resultType="com.example.domain.CouponTemplate">
+        SELECT * FROM coupon_template
+        WHERE event_type_cd = #{eventTypeCd}
+        ORDER BY RANDOM() LIMIT 1
+    </select>
+
+    <select id="existsUserCoupon" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM coupon_info
+        WHERE user_id = #{userId}
+          AND template_id = #{templateId}
+    </select>
+
+    <insert id="insertCoupon">
+        INSERT INTO coupon_info(user_id, template_id)
+        VALUES (#{userId}, #{templateId})
+    </insert>
+
 </mapper>

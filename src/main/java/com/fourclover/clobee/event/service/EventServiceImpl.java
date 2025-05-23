@@ -20,6 +20,10 @@ import java.util.Map;
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
 
+    private static final int MAX_ROULETTE_COUNT = 3;
+    private static final int CURRENT_EVENT_ID = 1;
+    private static final int CURRENT_EVENT_TYPE_CD = 603;
+
     @Override
     public List<String> getTotalAttend(long userId, String month) {
         Map<String, Object> params = new HashMap<>();
@@ -196,4 +200,63 @@ public class EventServiceImpl implements EventService {
         }
         return d;
     }
+
+
+    // 친구 초대
+    @Override
+    @Transactional
+    public void processInvitation(EventFriends eventFriends) {
+        // 유효성 검사
+        Integer inviterId = eventRepository.findUserIdByInvitationCode(eventFriends.getInviterUserId());
+        if (inviterId == null || inviterId.equals(eventFriends.getInvitedUserId())) {
+            throw new IllegalArgumentException("유효하지 않은 초대입니다.");
+        }
+
+        // 초대 기록
+        eventRepository.insertEventFriendLog(eventFriends);
+
+        // 룰렛 기회 증가 (최대 3회)
+        Integer count = eventRepository.getRouletteCount(eventFriends.getEventInfoId(), eventFriends.getInviterUserId());
+        if (count == null) {
+            eventRepository.insertEventFriendDetail(eventFriends.getEventInfoId(), eventFriends.getInviterUserId());
+            count = 0;
+        }
+
+        if (count < MAX_ROULETTE_COUNT) {
+            eventRepository.increaseRouletteCount(eventFriends.getEventInfoId(), eventFriends.getInviterUserId());
+        }
+    }
+
+    @Override
+    public EventFriendsInviteInfo getInviteInfo(int userId) {
+        String code = eventRepository.getInvitationCodeByUserId(userId);
+        int count = Optional.ofNullable(eventRepository.getRouletteCount(CURRENT_EVENT_ID, userId)).orElse(0);
+        return new EventFriendsInviteInfo(code, count);
+    }
+
+    @Override
+    @Transactional
+    public String spinRoulette(int userId) {
+        int count = Optional.ofNullable(eventRepository.getRouletteCount(CURRENT_EVENT_ID, userId)).orElse(0);
+        if (count <= 0) {
+            throw new IllegalStateException("보유한 룰렛 기회가 없습니다.");
+        }
+
+        // 랜덤 쿠폰 선택
+        CouponTemplate coupon = eventRepository.pickRandomCoupon(CURRENT_EVENT_TYPE_CD);
+
+        // 중복 발급 방지
+        if (eventRepository.existsUserCoupon(userId, coupon.getTemplateId())) {
+            return "이미 보유한 쿠폰입니다.";
+        }
+
+        // 쿠폰 발급
+        eventRepository.insertCoupon(userId, coupon.getTemplateId());
+
+        // 룰렛 차감
+        eventRepository.decreaseRouletteCount(CURRENT_EVENT_ID, userId);
+
+        return coupon.getCouponName();
+    }
+
 }

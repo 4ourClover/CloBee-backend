@@ -1,8 +1,6 @@
 package com.fourclover.clobee.event.service;
 
-import com.fourclover.clobee.event.domain.EventAttendanceDetail;
-import com.fourclover.clobee.event.domain.EventFindingCloverDetail;
-import com.fourclover.clobee.event.domain.EventInfo;
+import com.fourclover.clobee.event.domain.*;
 
 import java.util.List;
 
@@ -16,4 +14,11 @@ public interface EventService {
     EventFindingCloverDetail startCloverGame(Long userId, boolean invitedByFriend);
     EventFindingCloverDetail processCloverAttempt(Long userId, boolean success);
     EventFindingCloverDetail getCloverStatus(Long userId);
+
+
+    void processInvitation(EventFriends eventFriends);
+
+    EventFriendsInviteInfo getInviteInfo(int userId);
+
+    String spinRoulette(int userId);
 }

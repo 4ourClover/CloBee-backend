@@ -1,8 +1,6 @@
 package com.fourclover.clobee.event.controller;
 
-import com.fourclover.clobee.event.domain.EventAttendanceDetail;
-import com.fourclover.clobee.event.domain.EventFindingCloverDetail;
-import com.fourclover.clobee.event.domain.EventInfo;
+import com.fourclover.clobee.event.domain.*;
 import com.fourclover.clobee.event.service.EventService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -56,4 +54,25 @@ public class EventController {
             @RequestParam("user_id") Long userId) {
         return ResponseEntity.ok(eventService.getCloverStatus(userId));
     }
+
+    // 친구 초대 이벤트
+    // 친구 초대 처리 (회원가입 시 호출)
+    @PostMapping("/inviteFriends")
+    public ResponseEntity<String> invite(@RequestBody EventFriends eventFriends) {
+        eventService.processInvitation(eventFriends);
+        return ResponseEntity.ok("초대 완료");
+    }
+
+    // 초대 코드 및 룰렛 보유 횟수 조회
+    @GetMapping("/invite-info/{userId}")
+    public ResponseEntity<EventFriendsInviteInfo> getInviteInfo(@PathVariable int userId) {
+        return ResponseEntity.ok(eventService.getInviteInfo(userId));
+    }
+
+    // 룰렛 돌리기
+    @PostMapping("/roulette/spin/{userId}")
+    public ResponseEntity<String> spinRoulette(@PathVariable int userId) {
+        return ResponseEntity.ok(eventService.spinRoulette(userId));
+    }
+
 }
