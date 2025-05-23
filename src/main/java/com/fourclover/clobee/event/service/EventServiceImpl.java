@@ -20,6 +20,10 @@ import java.util.Map;
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
 
+    private static final int MAX_ROULETTE_COUNT = 3;
+    private static final int CURRENT_EVENT_ID = 1;
+    private static final int CURRENT_EVENT_TYPE_CD = 603;
+
     @Override
     public List<String> getTotalAttend(long userId, String month) {
         Map<String, Object> params = new HashMap<>();
@@ -49,8 +53,11 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public List<EventInfo> getCardEvents() {
-        return eventRepository.getEventInfo(ComCode.CARD_EVENT.getCodeId());
+    public List<EventInfo> getCardEvents(Long userId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userId != null ? userId : 0L);
+        params.put("comCodeId", ComCode.CARD_EVENT.getCodeId());
+        return eventRepository.getEventInfo(params);
     }
 
     // 배치 프로그램 || 클로버 다음날되면 참여 여부 초기화
@@ -196,4 +203,8 @@ public class EventServiceImpl implements EventService {
         }
         return d;
     }
+
+
+
+
 }

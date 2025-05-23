@@ -18,6 +18,7 @@ public class CardListDTO {
     private int cardRank;
     private String cardName;
     private String cardBrand;
+    private String cardBrandName;
     private int cardDomesticAnnualFee;
     private int cardGlobalAnnualFee;
     private int cardType;

@@ -25,4 +25,6 @@ public interface CardService {
     UserCardPerformanceDetail getPerformance(Long userCardId, int year, int month);
 
     void deleteUserCard(Long userId, Long cardInfoId);
+
+    Long getCardId(String cardName);
 }

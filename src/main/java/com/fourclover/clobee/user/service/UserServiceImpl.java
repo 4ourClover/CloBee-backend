@@ -3,6 +3,8 @@ package com.fourclover.clobee.user.service;
 import com.fourclover.clobee.config.SmsConfig;
 import com.fourclover.clobee.config.exception.ApiException;
 import com.fourclover.clobee.config.exception.ErrorCode;
+import com.fourclover.clobee.event.domain.EventFriendsDetail;
+import com.fourclover.clobee.event.repository.EventRepository;
 import com.fourclover.clobee.token.service.JwtService;
 import com.fourclover.clobee.user.domain.UserInfo;
 import com.fourclover.clobee.user.domain.request.LoginRequest;
@@ -44,6 +46,7 @@ public class UserServiceImpl implements UserService {
     private final Validator validator;
     private final DefaultMessageService messageService;
     private final SmsConfig smsConfig;
+    private final EventRepository eventRepository;
     private BCryptPasswordEncoder encoder;
     private final JwtService jwtService;
 
@@ -54,7 +57,7 @@ public class UserServiceImpl implements UserService {
             DefaultMessageService messageService,
             SmsConfig smsConfig,
             BCryptPasswordEncoder encoder,
-            JwtService jwtService) {
+            JwtService jwtService, EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.redisTemplate = redisTemplate;
         this.validator = validator;
@@ -62,6 +65,7 @@ public class UserServiceImpl implements UserService {
         this.smsConfig = smsConfig;
         this.encoder = encoder;
         this.jwtService = jwtService;
+        this.eventRepository = eventRepository;
     }
 
     @Override
@@ -121,6 +125,35 @@ public class UserServiceImpl implements UserService {
             String codeInRedis = redisTemplate.opsForValue().get("SMS_CODE:" + dto.getUserPhone());
             if (codeInRedis == null) {
                 throw new ApiException(ErrorCode.PHONE_VERIFICATION_REQUIRED);
+            }
+        }
+
+        // 친구 초대 코드 입력 확인
+        if (dto.getFriendInvitationCode() != null && !dto.getFriendInvitationCode().trim().isEmpty()) {
+            Long friendUserId = userRepository.findUserIdByInvitationCode(dto.getFriendInvitationCode());
+            if (friendUserId == null) {
+                throw new IllegalArgumentException("유효하지 않은 초대 코드입니다.");
+            }
+            else {
+                // userId가 event_friends_detail에 존재 하는 지 확인
+                Long eventFriendsId = userRepository.findEventFriendByUserId(friendUserId);
+                EventFriendsDetail eventFriendsDetail;
+
+                // 존재 하지 않는다면 insert, 존재 한다면 update
+                if(eventFriendsId == null) {
+                    userRepository.insertEventFriendsDetail(friendUserId);
+                    eventFriendsDetail = userRepository.getEventFriendsDetail(friendUserId);
+                }
+                else {
+                    eventFriendsDetail = userRepository.getEventFriendsDetail(friendUserId);
+
+                    if(eventFriendsDetail.getEventFriendsRouletteCountLimit() < 10) {
+                        userRepository.plusRouletteCountLimit(eventFriendsDetail.getEventFriendsId());
+                    }
+                }
+
+                // 로그 기록
+                userRepository.insertEventFriendLog(eventFriendsDetail.getEventFriendsId(), friendUserId, dto.getUserId());
             }
         }
 
