@@ -16,4 +16,6 @@ public interface EventService {
     EventFindingCloverDetail startCloverGame(Long userId, boolean invitedByFriend);
     EventFindingCloverDetail processCloverAttempt(Long userId, boolean success);
     EventFindingCloverDetail getCloverStatus(Long userId);
+
+
 }
