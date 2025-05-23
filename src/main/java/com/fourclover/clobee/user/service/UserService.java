@@ -16,7 +16,6 @@ public interface UserService {
     void verifyPhoneCode(String phone, String code);
     void registerEmailUser(UserInfo dto);
     void registerKakaoUser(String email, String nickname, Boolean agreedPrivacy);
-    //UserInfo loginWithKakao(OAuth2User oauth2User);
 
     void sendTemporaryPassword(TempPasswordRequest request);
     FindEmailResponse findEmail(String phone);
@@ -25,4 +24,13 @@ public interface UserService {
     TokenResponse loginWithKakao(OAuth2User oauth2User);
     Object kakaoLoginSuccess(HttpServletResponse response, OAuth2User oauthUser);
     UserInfo authedUserInfo(Authentication authentication);
+
+    // 새로 추가된 메서드: 이메일 중복 체크
+    boolean checkEmailExists(String email);
+
+    // 새로 추가된 메서드: 전화번호 중복 체크
+    boolean checkPhoneExists(String phone);
+
+    // 로그아웃 메서드 추가
+    void logout(HttpServletRequest request, HttpServletResponse response);
 }

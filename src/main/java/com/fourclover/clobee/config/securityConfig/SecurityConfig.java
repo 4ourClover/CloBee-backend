@@ -1,7 +1,10 @@
 package com.fourclover.clobee.config.securityConfig;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fourclover.clobee.config.exception.ErrorCode;
+import com.fourclover.clobee.config.exception.ErrorResponse;
 import com.fourclover.clobee.token.JwtFilter;
-import com.fourclover.clobee.user.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +40,16 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .formLogin((auth) -> auth.disable())
                 .authorizeHttpRequests(auth -> auth
+<<<<<<< HEAD
+                        .requestMatchers(
+                                "/oauth2/**",
+                                "/login/oauth2/code/kakao",
+                                "/user/**",  // 이미 허용된 경로
+                                "/error",
+                                "/event/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+=======
                                 .anyRequest().permitAll()
 //                        .requestMatchers(
 //                                "/oauth2/**",
@@ -46,10 +59,38 @@ public class SecurityConfig {
 //                                "/event/**"
 //                        ).permitAll()
 //                        .anyRequest().authenticated()
+>>>>>>> 957461c832dca458c1b00038242b52f8914d833e
+                )
+                // 예외 처리 설정 추가
+                .exceptionHandling(exc -> exc
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // 인증되지 않은 요청 처리
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+
+                            ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.UNAUTHORIZED);
+                            String jsonResponse = new ObjectMapper().writeValueAsString(errorResponse);
+                            response.getWriter().write(jsonResponse);
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            // 권한이 없는 요청 처리
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json;charset=UTF-8");
+
+                            ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.AUTHENTICATION_FAILED);
+                            String jsonResponse = new ObjectMapper().writeValueAsString(errorResponse);
+                            response.getWriter().write(jsonResponse);
+                        })
                 )
                 .oauth2Login(oauth -> oauth
-                        // OAuth2 로그인 후 리다이렉트할 URL
-                        .defaultSuccessUrl("/user/login/kakao", true)
+                        // 기존 설정 유지
+                        .authorizationEndpoint(endpoint -> endpoint
+                                .baseUri("/api/oauth2/authorization")
+                        )
+                        .redirectionEndpoint(endpoint -> endpoint
+                                .baseUri("/api/login/oauth2/code/*")
+                        )
+                        .defaultSuccessUrl("/api/user/login/kakao", true)
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(oauth2UserService())
                         )
@@ -85,5 +126,6 @@ public class SecurityConfig {
 
         return source;
     }
+
 
 }

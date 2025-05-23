@@ -1,11 +1,14 @@
 package com.fourclover.clobee.user.controller;
 
+import com.fourclover.clobee.config.exception.ApiException;
+import com.fourclover.clobee.config.exception.ErrorCode;
 import com.fourclover.clobee.user.domain.UserInfo;
 import com.fourclover.clobee.user.domain.request.LoginRequest;
 import com.fourclover.clobee.user.domain.request.RefreshRequest;
 import com.fourclover.clobee.user.domain.request.TempPasswordRequest;
 import com.fourclover.clobee.user.domain.response.FindEmailResponse;
 import com.fourclover.clobee.user.domain.response.TokenResponse;
+import com.fourclover.clobee.user.repository.UserRepository;
 import com.fourclover.clobee.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -103,10 +106,34 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserInfo> getCurrentUser(Authentication authentication) {
+        if (authentication == null) {
+            throw new ApiException(ErrorCode.UNAUTHORIZED);
+        }
 
         UserInfo userInfo = userService.authedUserInfo(authentication);
         userInfo.setUserPassword(null);
         return ResponseEntity.ok(userInfo);
+    }
+
+    @GetMapping("/check-email")
+    public ResponseEntity<Map<String, Boolean>> checkEmailExists(@RequestParam String email) {
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", userService.checkEmailExists(email));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/check-phone")
+    public ResponseEntity<Map<String, Boolean>> checkPhoneExists(@RequestParam String phone) {
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", userService.checkPhoneExists(phone));
+        return ResponseEntity.ok(response);
+    }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+        userService.logout(request, response);
+        return ResponseEntity.ok().build();
     }
 
 
