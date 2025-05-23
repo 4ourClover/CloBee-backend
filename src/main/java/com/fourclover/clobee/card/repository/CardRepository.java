@@ -51,4 +51,7 @@ public interface CardRepository {
 
     // 카드 삭제하기
     void deleteUserCard(@Param("userId") Long userId, @Param("cardInfoId") Long cardInfoId);
+
+    //카드 이름으로 카드 아이디 조회
+    Long findCardIdByName(@Param("cardName") String cardName);
 }

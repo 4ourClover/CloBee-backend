@@ -130,4 +130,15 @@ public class CardServiceImpl implements CardService {
     public void deleteUserCard(Long userId, Long cardInfoId) {
         cardRepository.deleteUserCard(userId, cardInfoId);
     }
+
+    @Override
+    public Long getCardId(String cardName) {
+        try{
+            System.out.println("Service에서 처리할 카드명: " + cardName);
+            return cardRepository.findCardIdByName(cardName.trim());
+        }catch (Exception e) {
+            System.err.println("데이터베이스 조회 오류: " + e.getMessage());
+            throw new RuntimeException("카드 조회 중 오류가 발생했습니다.", e);
+        }
+    }
 }
