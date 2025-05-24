@@ -1,7 +1,9 @@
 package com.fourclover.clobee.user.domain;
 
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,7 +33,7 @@ public class UserInfo {
     @NotBlank(message = "닉네임은 필수 입력값입니다.")
     private String userNickname;
 
-    //@NotNull(message = "생년월일을 입력해주세요.")
+    @NotNull(message = "생년월일을 입력해주세요.")
     private LocalDate userBirthday;
 
     @Pattern(regexp = "^\\d{10,11}$",
@@ -51,6 +53,9 @@ public class UserInfo {
 
     // 가입 시 자동 생성
     private String userInvitationCode;
+
+    // 친구의 초대 코드 입력
+    private String friendInvitationCode;
 
     // timestamp
     private LocalDateTime createdAt;

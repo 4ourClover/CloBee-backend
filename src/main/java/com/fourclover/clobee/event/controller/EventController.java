@@ -58,4 +58,9 @@ public class EventController {
             @RequestParam("user_id") Long userId) {
         return ResponseEntity.ok(eventService.getCloverStatus(userId));
     }
+
+    // 친구 초대 이벤트
+    // 친구 초대 처리 (회원가입 시 호출)
+
+
 }

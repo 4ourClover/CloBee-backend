@@ -32,23 +32,24 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.equals("/user/signup/email")
-                || path.equals("/user/sendPhoneCode")
-                || path.equals("/user/verifyPhoneCode")
-                || path.equals("/user/login")
-                || path.equals("/user/refresh")
-                || path.startsWith("/oauth2/")
-                || path.startsWith("/login")
-                || path.startsWith("/error")
-                || path.equals("/user/signup/kakao")
-                || path.equals("/user/login/kakao")
-                || path.startsWith("/swagger-ui/")
-                || path.equals("/swagger-ui.html")
-                || path.startsWith("/v3/api-docs")
-                || path.startsWith("/swagger-resources/")
-                || path.startsWith("/webjars/")
-                || path.startsWith("/configuration/");
+        return path.equals("/api/user/signup/email")
+                || path.equals("/api/user/sendPhoneCode")
+                || path.equals("/api/user/verifyPhoneCode")
+                || path.equals("/api/user/refresh")
+                || path.startsWith("/api/oauth2/")
+                || path.startsWith("/api/login")
+                || path.startsWith("/api/error")
+                || path.equals("/api/user/signup/kakao")
+                || path.equals("/api/user/login/kakao")
+                || path.startsWith("/api/swagger-ui/")
+                || path.equals("/api/swagger-ui.html")
+                || path.startsWith("/api/v3/api-docs")
+                || path.startsWith("/api/swagger-resources/")
+                || path.startsWith("/api/webjars/")
+                || path.startsWith("/api/configuration/");
     }
+
+
 
     @Override
     public void doFilterInternal(HttpServletRequest request,

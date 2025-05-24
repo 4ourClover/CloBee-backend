@@ -20,6 +20,10 @@ import java.util.Map;
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
 
+    private static final int MAX_ROULETTE_COUNT = 3;
+    private static final int CURRENT_EVENT_ID = 1;
+    private static final int CURRENT_EVENT_TYPE_CD = 603;
+
     @Override
     public List<String> getTotalAttend(long userId, String month) {
         Map<String, Object> params = new HashMap<>();
@@ -201,4 +205,8 @@ public class EventServiceImpl implements EventService {
         }
         return d;
     }
+
+
+
+
 }

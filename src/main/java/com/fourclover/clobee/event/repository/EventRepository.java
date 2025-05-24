@@ -30,4 +30,7 @@ public interface EventRepository {
 
     // 쿠폰 발급용 insert 메서드
     int insertCouponInfo(CouponInfo couponInfo);
+
+    // 친구 초대 이벤트
+
 }
