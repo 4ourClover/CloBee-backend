@@ -46,37 +46,37 @@
         WHERE user_id = #{invitationCode}
     </select>
 
-    <!-- 친구 초대 이벤트 : 처음 친구를 초대한 고객을 룰렛 테이블에 추가 -->
-    <insert id="insertEventFriendsDetail" parameterType="Long">
-        INSERT INTO event_friends_detail (
-            event_info_id, user_id, event_friends_roulette_count_limit,
-            event_friends_roulette_current_count)
-        VALUES (156, #{userId}, 0, 0)
-    </insert>
+<!--    &lt;!&ndash; 친구 초대 이벤트 : 처음 친구를 초대한 고객을 룰렛 테이블에 추가 &ndash;&gt;-->
+<!--    <insert id="insertEventFriendsDetail" parameterType="Long">-->
+<!--        INSERT INTO event_friends_detail (-->
+<!--            event_info_id, user_id, event_friends_roulette_count_limit,-->
+<!--            event_friends_roulette_current_count)-->
+<!--        VALUES (156, #{userId}, 0, 0)-->
+<!--    </insert>-->
 
-    <!-- 친구 초대 이벤트 : 친구 초대 디테일 DTO 가져오기 -->
-    <select id="getEventFriendsDetail" resultType="EventFriendsDetail">
-        SELECT event_friends_id, event_info_id, user_id, event_friends_roulette_count_limit,
-               event_friends_roulette_current_count
-        FROM event_friends_detail
-        WHERE user_id = #{userId}
-    </select>
+<!--    &lt;!&ndash; 친구 초대 이벤트 : 친구 초대 디테일 DTO 가져오기 &ndash;&gt;-->
+<!--    <select id="getEventFriendsDetail" resultType="EventFriendsDetail">-->
+<!--        SELECT event_friends_id, event_info_id, user_id, event_friends_roulette_count_limit,-->
+<!--               event_friends_roulette_current_count-->
+<!--        FROM event_friends_detail-->
+<!--        WHERE user_id = #{userId}-->
+<!--    </select>-->
 
-    <!-- 친구 초대 이벤트 : 룰렛 기회 증가 -->
-    <update id="plusRouletteCountLimit">
-        UPDATE event_friends_detail
-        SET event_friends_roulette_count_limit = event_friends_roulette_count_limit + 1,
-            event_friends_roulette_current_count = event_friends_roulette_current_count + 1,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE event_friends_id = #{eventFriendsId}
-    </update>
+<!--    &lt;!&ndash; 친구 초대 이벤트 : 룰렛 기회 증가 &ndash;&gt;-->
+<!--    <update id="plusRouletteCountLimit">-->
+<!--        UPDATE event_friends_detail-->
+<!--        SET event_friends_roulette_count_limit = event_friends_roulette_count_limit + 1,-->
+<!--            event_friends_roulette_current_count = event_friends_roulette_current_count + 1,-->
+<!--            updated_at = CURRENT_TIMESTAMP-->
+<!--        WHERE event_friends_id = #{eventFriendsId}-->
+<!--    </update>-->
 
-    <!-- 친구 초대 이벤트 : 친구 초대 로그에 추가 -->
-    <insert id="insertEventFriendLog">
-        INSERT INTO event_friends_log(
-            event_info_id, event_friends_id,
-            event_friends_inviter_user_id, event_friends_invited_user_id
-        ) VALUES (156, #{eventFriendsId}, #{friendUserId}, #{userId})
-    </insert>
+<!--    &lt;!&ndash; 친구 초대 이벤트 : 친구 초대 로그에 추가 &ndash;&gt;-->
+<!--    <insert id="insertEventFriendLog">-->
+<!--        INSERT INTO event_friends_log(-->
+<!--            event_info_id, event_friends_id,-->
+<!--            event_friends_inviter_user_id, event_friends_invited_user_id-->
+<!--        ) VALUES (156, #{eventFriendsId}, #{friendUserId}, #{userId})-->
+<!--    </insert>-->
 
 </mapper>

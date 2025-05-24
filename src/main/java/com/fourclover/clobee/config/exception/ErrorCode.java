@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorCode {
     // UserService 관련
+    INVALID_PHONE_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 전화번호 형식입니다"),
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "유저를 찾을 수 없습니다."),
     PHONE_DUPLICATION(HttpStatus.BAD_REQUEST, "이미 사용 중인 전화번호입니다."),
     EMAIL_DUPLICATION(HttpStatus.BAD_REQUEST, "이미 사용 중인 이메일입니다."),
