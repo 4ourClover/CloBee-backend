@@ -152,8 +152,6 @@ public class CardServiceImpl implements CardService {
         List<CardBenefitDetail> rawData = cardRepository.selectCardBenefitsByUserIdAndStore(userId, store);
 
         return rawData.stream().map(data -> {
-                    String cardName = data.getCardName();
-                    String benefitDesc = data.getCardBenefitDesc();
                     String discountRaw = data.getCardBenefitDiscntPrice();
 
                     int discountAmount = parseToDiscountAmount(discountRaw, store);
@@ -173,7 +171,6 @@ public class CardServiceImpl implements CardService {
                 .peek(dto -> {
                     int discount = parseToDiscountAmount(dto.getCardBenefitDiscntPrice(), store);
                     dto.setDiscountPrice(discount);
-                    System.out.println("💳 " + dto.getCardName() + " / 원문: " + dto.getCardBenefitDiscntPrice() + " → 할인 금액: " + discount);
                 })
                 .filter(dto -> dto.getDiscountPrice() > 0)
                 .sorted(Comparator
