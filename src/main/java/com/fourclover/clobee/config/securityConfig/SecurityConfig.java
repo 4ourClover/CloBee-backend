@@ -45,7 +45,8 @@ public class SecurityConfig {
                                 "/login/oauth2/code/kakao",
                                 "/user/**",  // 이미 허용된 경로
                                 "/error",
-                                "/event/**"
+                                "/event/**",
+                                "/card/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

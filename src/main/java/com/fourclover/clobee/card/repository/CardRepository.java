@@ -54,4 +54,10 @@ public interface CardRepository {
 
     //카드 이름으로 카드 아이디 조회
     Long findCardIdByName(@Param("cardName") String cardName);
+
+    // 매장별 내 카드 혜택
+    List<CardBenefitDetail> selectCardBenefitsByUserIdAndStore(@Param("userId") int userId, @Param("store") String store);
+
+    // 매장별 추천 카드
+    List<CardBenefitDetail> selectRecommendedCardsByStore(@Param("store") String store);
 }

@@ -91,6 +91,25 @@ public class CardController {
     public ResponseEntity<Long> getCardId(@RequestParam String cardName) {
         return ResponseEntity.ok(cardService.getCardId(cardName));
     }
+
+    // 매장별 내 카드 혜택을 지도로 보내기
+    // http://localhost:8080/api/card/mapMyBenefits?userId=11&cardBenefitStore=스타벅스
+    @GetMapping("/mapMyBenefits")
+    public ResponseEntity<List<CardBenefitDetail>> getCardBenefits(
+            @RequestParam int userId,
+            @RequestParam String cardBenefitStore
+    ) {
+        List<CardBenefitDetail> result = cardService.getCardBenefitsSortedByDiscount(userId, cardBenefitStore);
+        return ResponseEntity.ok(result);
+    }
+
+    // 매장별 추천 카드를 지도로 보내기
+    // http://localhost:8080/api/card/recommendCard?cardBenefitStore=스타벅스
+    @GetMapping("/recommendCard")
+    public ResponseEntity<List<CardBenefitDetail>> getRecommendations(@RequestParam String cardBenefitStore) {
+        return ResponseEntity.ok(cardService.getRecommendedCards(cardBenefitStore));
+    }
+
 }
 
 
