@@ -27,4 +27,8 @@ public interface CardService {
     void deleteUserCard(Long userId, Long cardInfoId);
 
     Long getCardId(String cardName);
+
+    List<CardBenefitDetail> getCardBenefitsSortedByDiscount(int userId, String store);
+
+    List<CardBenefitDetail> getRecommendedCards(String store);
 }

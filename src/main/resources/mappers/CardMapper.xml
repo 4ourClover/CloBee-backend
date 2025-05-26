@@ -41,9 +41,9 @@
 
     <!-- 카드 : 카드 혜택 상세 보기 -->
     <select id="getCardBenefit" resultType="CardBenefitDetail">
-        SELECT card_benefit_id, card_info_id, card_benefit_category,
-               card_benefit_store, card_benefit_title, card_benefit_desc,
-               card_benefit_discnt_rate, card_benefit_discnt_price, card_benefit_condition
+        SELECT card_benefit_id, card_info_id,
+               card_benefit_store, card_benefit_desc,
+               card_benefit_discnt_price, card_benefit_condition
         FROM card_benefit_detail
         WHERE card_info_id = #{cardInfoId}
     </select>
@@ -141,6 +141,46 @@
         FROM card_info
         WHERE card_name = #{cardName}
             LIMIT 1
+    </select>
+
+    <!-- 카드 혜택 : map에 전송해 줄 내 card 혜택 -->
+    <select id="selectCardBenefitsByUserIdAndStore" resultType="CardBenefitDetail">
+        SELECT
+            cb.card_benefit_id,
+            cb.card_info_id,
+            cb.card_benefit_store,
+            cb.card_benefit_discnt_price,
+            cb.card_benefit_desc,
+            cb.card_benefit_condition,
+            ci.card_name
+        FROM
+            user_card_detail ucd
+                JOIN
+            card_info ci ON ucd.card_info_id = ci.card_info_id
+                JOIN
+            card_benefit_detail cb ON ci.card_info_id = cb.card_info_id
+        WHERE
+            ucd.user_id = #{userId}
+          AND (
+            cb.card_benefit_store LIKE CONCAT('%', #{store}, '%')
+            )
+    </select>
+
+    <!-- 카드 혜택 : map에 전송해 줄 추천 card -->
+    <select id="selectRecommendedCardsByStore" resultType="CardBenefitDetail">
+        SELECT
+            cbd.card_benefit_id,
+            cbd.card_info_id ,
+            cbd.card_benefit_store,
+            cbd.card_benefit_discnt_price,
+            cbd.card_benefit_desc,
+            cbd.card_benefit_condition,
+            ci.card_name,
+            ci.card_rank,
+            ci.card_image_url
+        FROM card_benefit_detail cbd
+                 JOIN card_info ci ON cbd.card_info_id = ci.card_info_id
+        WHERE cbd.card_benefit_store = #{store}
     </select>
 
 </mapper>
