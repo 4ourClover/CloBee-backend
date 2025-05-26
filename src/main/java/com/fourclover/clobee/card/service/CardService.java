@@ -30,4 +30,8 @@ public interface CardService {
     List<String> getBenefitStoresByUserId(Long userId);
 
     Map<String, List<String>> getCardBrandByUserId(Long userId);
+
+    List<CardBenefitDetail> getCardBenefitsSortedByDiscount(int userId, String store);
+
+    List<CardBenefitDetail> getRecommendedCards(String store);
 }

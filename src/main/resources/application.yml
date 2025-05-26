@@ -10,20 +10,6 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-#    hikari:
-#      # 연결 풀 설정
-#      maximum-pool-size: 10
-#      minimum-idle: 5
-#      idle-timeout: 300000     # 5분
-#      max-lifetime: 600000     # 10분
-#      connection-timeout: 30000 # 30초
-#
-#      # PostgreSQL 특화 설정
-#      connection-test-query: SELECT 1
-#      validation-timeout: 5000  # 5초
-#
-#      # 추가 설정
-#      leak-detection-threshold: 60000
   mvc:
     servlet:
       path: /api
@@ -69,7 +55,7 @@ sms:
   provider:
     api-key: ${API_KEY}
     api-secret: ${API_SECRET}
-    sender-phone: ${SENDER_PHONE}
+    sender-phone: 01024708701
 
 mybatis:
   mapper-locations: classpath:mappers/*.xml
@@ -77,10 +63,10 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
 
-logging:
-  level:
-    org.mybatis: INFO
-    org.springframework.jdbc: DEBUG
+#logging:
+#  level:
+#    org.mybatis: INFO
+#    org.springframework.jdbc: DEBUG
 
 jwt:
   secret: ${JWT_SECRET}

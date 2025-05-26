@@ -1,14 +1,13 @@
 package com.fourclover.clobee.token;
 
-import com.fourclover.clobee.token.service.UserDetailsServiceImpl;
 import com.fourclover.clobee.token.domain.TokenType;
 import com.fourclover.clobee.token.service.JwtService;
+import com.fourclover.clobee.token.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -96,4 +95,3 @@ public class JwtFilter extends OncePerRequestFilter {
         return Optional.empty();
     }
 }
-

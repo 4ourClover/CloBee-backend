@@ -56,4 +56,10 @@ public interface CardRepository {
     List<String> findBenefitStoresByUserId(@Param("userId") Long userId);
     // 보유 카드들의 혜택 매장 중복 없이 조회
     List<BenefitStoreDTO> findCardBrandByUserId(@Param("userId") Long userId);
+
+    // 매장별 내 카드 혜택
+    List<CardBenefitDetail> selectCardBenefitsByUserIdAndStore(@Param("userId") int userId, @Param("store") String store);
+
+    // 매장별 추천 카드
+    List<CardBenefitDetail> selectRecommendedCardsByStore(@Param("store") String store);
 }
