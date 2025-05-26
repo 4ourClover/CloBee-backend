@@ -135,12 +135,24 @@
         WHERE user_id = #{userId} AND card_info_id = #{cardInfoId}
     </delete>
 
-    <!-- 카드 이름으로 카드 아이디 조회 (단일 결과) -->
-    <select id="findCardIdByName" parameterType="String" resultType="Long">
-        SELECT card_info_id
-        FROM card_info
-        WHERE card_name = #{cardName}
-            LIMIT 1
+
+    <!-- 🎯 사용자의 혜택 매장 조회 (한 번의 쿼리로 효율적 처리 - 추천) -->
+    <select id="findBenefitStoresByUserId" resultType="String">
+        SELECT DISTINCT cbd.card_benefit_store
+        FROM user_card_detail ucd
+                 INNER JOIN card_benefit_detail cbd ON ucd.card_info_id = cbd.card_info_id
+        WHERE ucd.user_id = #{userId}
+    </select>
+
+    <select id="findCardBrandByUserId" resultType="com.fourclover.clobee.card.domain.BenefitStoreDTO">
+        SELECT DISTINCT
+            cbd.card_benefit_store AS cardBenefitStore,
+            cci.com_desc AS brand
+        FROM user_card_detail ucd
+                 INNER JOIN card_benefit_detail cbd ON ucd.card_info_id = cbd.card_info_id
+                 INNER JOIN card_info ci ON cbd.card_info_id = ci.card_info_id
+                 INNER JOIN com_code_info cci ON ci.card_brand = cci.com_code_cd
+        WHERE ucd.user_id = #{userId}
     </select>
 
 </mapper>

@@ -40,14 +40,16 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .formLogin((auth) -> auth.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/oauth2/**",
-                                "/login/oauth2/code/kakao",
-                                "/user/**",  // 이미 허용된 경로
-                                "/error",
-                                "/event/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
+//                        .requestMatchers(
+//                                "/oauth2/**",
+//                                "/login/oauth2/code/kakao",
+//                                "/user/**",  // 이미 허용된 경로
+//                                "/error",
+//                                "/event/**",
+//                                "/"
+//                        ).permitAll()
+//                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 // 예외 처리 설정 추가
                 .exceptionHandling(exc -> exc
