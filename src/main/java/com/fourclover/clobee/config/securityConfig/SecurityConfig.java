@@ -88,6 +88,8 @@ public class SecurityConfig {
         return http.build();
     }
 
+
+
     @Bean
     public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
         return new DefaultOAuth2UserService();
