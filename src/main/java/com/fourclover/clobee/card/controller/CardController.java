@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/card")
@@ -85,12 +86,37 @@ public class CardController {
         return ResponseEntity.ok("카드가 삭제되었습니다.");
     }
 
-    // 카드 id 가져오기
-    // http://localhost:8080/api/card/getCardId?cardName=삼성카드%20taptap
-    @GetMapping("/getCardId")
-    public ResponseEntity<Long> getCardId(@RequestParam String cardName) {
-        return ResponseEntity.ok(cardService.getCardId(cardName));
+    // 혜택매장 찾기
+    @GetMapping("/benefit-stores")
+    public ResponseEntity<List<String>> getBenefitStores(@RequestParam Long userId) {
+        System.out.println("혜택매장요청");
+        return ResponseEntity.ok(cardService.getBenefitStoresByUserId(userId));
     }
+
+    @GetMapping("/benefit-stores-brand")
+    public ResponseEntity<Map<String, List<String>>> getCardBrand(@RequestParam Long userId) {
+        System.out.println("혜택매장요청: " + userId);
+        return ResponseEntity.ok(cardService.getCardBrandByUserId(userId));
+    }
+
+    // 매장별 내 카드 혜택을 지도로 보내기
+    // http://localhost:8080/api/card/mapMyBenefits?userId=11&cardBenefitStore=스타벅스
+    @GetMapping("/mapMyBenefits")
+    public ResponseEntity<List<CardBenefitDetail>> getCardBenefits(
+            @RequestParam int userId,
+            @RequestParam String cardBenefitStore
+    ) {
+        List<CardBenefitDetail> result = cardService.getCardBenefitsSortedByDiscount(userId, cardBenefitStore);
+        return ResponseEntity.ok(result);
+    }
+
+    // 매장별 추천 카드를 지도로 보내기
+    // http://localhost:8080/api/card/recommendCard?cardBenefitStore=스타벅스
+    @GetMapping("/recommendCard")
+    public ResponseEntity<List<CardBenefitDetail>> getRecommendations(@RequestParam String cardBenefitStore) {
+        return ResponseEntity.ok(cardService.getRecommendedCards(cardBenefitStore));
+    }
+
 }
 
 

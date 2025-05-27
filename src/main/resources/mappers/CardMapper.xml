@@ -41,9 +41,9 @@
 
     <!-- 카드 : 카드 혜택 상세 보기 -->
     <select id="getCardBenefit" resultType="CardBenefitDetail">
-        SELECT card_benefit_id, card_info_id, card_benefit_category,
-               card_benefit_store, card_benefit_title, card_benefit_desc,
-               card_benefit_discnt_rate, card_benefit_discnt_price, card_benefit_condition
+        SELECT card_benefit_id, card_info_id,
+               card_benefit_store, card_benefit_desc,
+               card_benefit_discnt_price, card_benefit_condition
         FROM card_benefit_detail
         WHERE card_info_id = #{cardInfoId}
     </select>
@@ -58,7 +58,7 @@
     <!-- 카드 : 카드 신청하기 누르면 card_apply_views 증가 -->
     <update id="updateApplyViews">
         update card_info
-        SET card_apply_views = card_apply_views + 1
+        SET card_views = card_views + 1
         WHERE card_info_id = #{cardInfoId}
     </update>
 
@@ -135,12 +135,64 @@
         WHERE user_id = #{userId} AND card_info_id = #{cardInfoId}
     </delete>
 
-    <!-- 카드 이름으로 카드 아이디 조회 (단일 결과) -->
-    <select id="findCardIdByName" parameterType="String" resultType="Long">
-        SELECT card_info_id
-        FROM card_info
-        WHERE card_name = #{cardName}
-            LIMIT 1
+
+    <!-- 🎯 사용자의 혜택 매장 조회 (한 번의 쿼리로 효율적 처리 - 추천) -->
+    <select id="findBenefitStoresByUserId" resultType="String">
+        SELECT DISTINCT cbd.card_benefit_store
+        FROM user_card_detail ucd
+                 INNER JOIN card_benefit_detail cbd ON ucd.card_info_id = cbd.card_info_id
+        WHERE ucd.user_id = #{userId}
+    </select>
+
+    <select id="findCardBrandByUserId" resultType="com.fourclover.clobee.card.domain.BenefitStoreDTO">
+        SELECT DISTINCT
+            cbd.card_benefit_store AS cardBenefitStore,
+            cci.com_desc AS brand
+        FROM user_card_detail ucd
+                 INNER JOIN card_benefit_detail cbd ON ucd.card_info_id = cbd.card_info_id
+                 INNER JOIN card_info ci ON cbd.card_info_id = ci.card_info_id
+                 INNER JOIN com_code_info cci ON ci.card_brand = cci.com_code_cd
+        WHERE ucd.user_id = #{userId}
+    </select>
+
+    <!-- 카드 혜택 : map에 전송해 줄 내 card 혜택 -->
+    <select id="selectCardBenefitsByUserIdAndStore" resultType="CardBenefitDetail">
+        SELECT
+            cb.card_benefit_id,
+            cb.card_info_id,
+            cb.card_benefit_store,
+            cb.card_benefit_discnt_price,
+            cb.card_benefit_desc,
+            cb.card_benefit_condition,
+            ci.card_name
+        FROM
+            user_card_detail ucd
+                JOIN
+            card_info ci ON ucd.card_info_id = ci.card_info_id
+                JOIN
+            card_benefit_detail cb ON ci.card_info_id = cb.card_info_id
+        WHERE
+            ucd.user_id = #{userId}
+          AND (
+            cb.card_benefit_store LIKE CONCAT('%', #{store}, '%')
+            )
+    </select>
+
+    <!-- 카드 혜택 : map에 전송해 줄 추천 card -->
+    <select id="selectRecommendedCardsByStore" resultType="CardBenefitDetail">
+        SELECT
+            cbd.card_benefit_id,
+            cbd.card_info_id ,
+            cbd.card_benefit_store,
+            cbd.card_benefit_discnt_price,
+            cbd.card_benefit_desc,
+            cbd.card_benefit_condition,
+            ci.card_name,
+            ci.card_rank,
+            ci.card_image_url
+        FROM card_benefit_detail cbd
+                 JOIN card_info ci ON cbd.card_info_id = ci.card_info_id
+        WHERE cbd.card_benefit_store = #{store}
     </select>
 
 </mapper>
