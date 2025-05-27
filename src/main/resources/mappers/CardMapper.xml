@@ -58,7 +58,7 @@
     <!-- 카드 : 카드 신청하기 누르면 card_apply_views 증가 -->
     <update id="updateApplyViews">
         update card_info
-        SET card_apply_views = card_apply_views + 1
+        SET card_views = card_views + 1
         WHERE card_info_id = #{cardInfoId}
     </update>
 
