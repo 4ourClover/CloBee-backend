@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import com.fourclover.clobee.card.domain.BenefitStoreDTO;
 
 
 @Mapper
@@ -52,8 +53,9 @@ public interface CardRepository {
     // 카드 삭제하기
     void deleteUserCard(@Param("userId") Long userId, @Param("cardInfoId") Long cardInfoId);
 
-    //카드 이름으로 카드 아이디 조회
-    Long findCardIdByName(@Param("cardName") String cardName);
+    List<String> findBenefitStoresByUserId(@Param("userId") Long userId);
+    // 보유 카드들의 혜택 매장 중복 없이 조회
+    List<BenefitStoreDTO> findCardBrandByUserId(@Param("userId") Long userId);
 
     // 매장별 내 카드 혜택
     List<CardBenefitDetail> selectCardBenefitsByUserIdAndStore(@Param("userId") int userId, @Param("store") String store);
