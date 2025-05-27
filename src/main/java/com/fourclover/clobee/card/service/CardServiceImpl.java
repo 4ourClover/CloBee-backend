@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -134,16 +135,40 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public Long getCardId(String cardName) {
-        try{
-            System.out.println("Service에서 처리할 카드명: " + cardName);
-            return cardRepository.findCardIdByName(cardName.trim());
-        }catch (Exception e) {
-            System.err.println("데이터베이스 조회 오류: " + e.getMessage());
-            throw new RuntimeException("카드 조회 중 오류가 발생했습니다.", e);
+    public List<String> getBenefitStoresByUserId(Long userId) {
+        try {
+            List<String> benefitStores = cardRepository.findBenefitStoresByUserId(userId);
+
+//            if (benefitStores == null || benefitStores.isEmpty()) {
+//                logger.info("사용자 혜택 매장 없음 - userId: {}", userId);
+//            }
+
+            //logger.info("사용자 혜택 매장 조회 완료 - userId: {}, 매장 수: {}", userId, benefitStores.size());
+            //logger.debug("혜택 매장 목록: {}", benefitStores);
+
+            return benefitStores;
+        } catch (Exception e) {
+            //logger.error("사용자 혜택 매장 조회 실패 - userId: {}", userId, e);
+            throw new RuntimeException("혜택 매장 조회 중 오류가 발생했습니다.", e);
         }
 
 
+    }
+
+    @Override
+    public Map<String, List<String>> getCardBrandByUserId(Long userId) {
+        List<BenefitStoreDTO> benefitStores = cardRepository.findCardBrandByUserId(userId);
+
+        System.out.println(benefitStores);
+
+        return benefitStores.stream()
+                .collect(Collectors.groupingBy(
+                        store -> (String) store.getBrand(),  // 브랜드명으로 그룹화
+                        Collectors.mapping(
+                                store -> (String) store.getCardBenefitStore(),
+                                Collectors.toList()
+                        )
+                ));
     }
 
     // 카드 혜택을 지도로
@@ -251,5 +276,4 @@ public class CardServiceImpl implements CardService {
             return 0;
         }
     }
-
 }

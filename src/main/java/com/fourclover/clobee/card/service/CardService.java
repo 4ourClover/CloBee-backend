@@ -6,6 +6,7 @@ import com.fourclover.clobee.card.domain.CardPageDTO;
 import com.fourclover.clobee.card.domain.UserCardPerformanceDetail;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CardService {
     CardPageDTO getCardPage(String type, int page, int size);
@@ -26,7 +27,9 @@ public interface CardService {
 
     void deleteUserCard(Long userId, Long cardInfoId);
 
-    Long getCardId(String cardName);
+    List<String> getBenefitStoresByUserId(Long userId);
+
+    Map<String, List<String>> getCardBrandByUserId(Long userId);
 
     List<CardBenefitDetail> getCardBenefitsSortedByDiscount(int userId, String store);
 

@@ -13,7 +13,7 @@ public class CardBenefitDetail {
     private int cardBenefitId;
     private Long cardInfoId;
     private String cardBenefitStore;
-    private String cardBenefitDiscntPrice;  // 할인 금액 (DB에 저장된 할인 : 10%, 5000원 등)
+    private String cardBenefitDiscntPrice;
     private String cardBenefitDesc;         // 혜택 상세 설명 text
     private String cardBenefitCondition;    // 혜택 조건
     private String cardName;
