@@ -164,6 +164,7 @@
             cb.card_benefit_discnt_price,
             cb.card_benefit_desc,
             cb.card_benefit_condition,
+            ci.card_brand,
             ci.card_name
         FROM
             user_card_detail ucd
@@ -189,6 +190,7 @@
             cbd.card_benefit_condition,
             ci.card_name,
             ci.card_rank,
+            ci.card_brand,
             ci.card_image_url
         FROM card_benefit_detail cbd
                  JOIN card_info ci ON cbd.card_info_id = ci.card_info_id

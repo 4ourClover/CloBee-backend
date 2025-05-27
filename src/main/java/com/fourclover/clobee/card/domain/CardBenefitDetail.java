@@ -19,6 +19,7 @@ public class CardBenefitDetail {
     private String cardName;
     private int discountPrice;  // 할인 퍼센트를 금액으로 환산
     private int cardRank;
+    private int cardBrand;
     private String cardImageUrl;
 
 }
