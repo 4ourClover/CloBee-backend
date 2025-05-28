@@ -1,10 +1,10 @@
 spring:
   application:
     name: clobee
-#  profiles:
-#    active: prod #local
-#  config:
-#    import: optional:file:.env.prod[.properties] #local[.properties]
+  profiles:
+    active: prod #local
+  config:
+    import: optional:file:.env.prod[.properties] #local[.properties]
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
