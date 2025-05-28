@@ -10,6 +10,12 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      max-lifetime: 300000       # 5분 (단위: 밀리초)
+      connection-timeout: 30000  # 30초
+      validation-timeout: 5000   # 5초
+      idle-timeout: 60000        # 1분
+      maximum-pool-size: 10      # 커넥션 풀 최대 크기
   mvc:
     servlet:
       path: /api
