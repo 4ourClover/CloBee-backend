@@ -81,6 +81,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         StructuredErrorLog structuredLog = new StructuredErrorLog(
                 "CO-01",
+                "TYPE_ERROR",
                 "요청 파라미터 타입이 올바르지 않습니다: " + e.getName(),
                 HttpStatus.BAD_REQUEST.value(),
                 request.getRequestURI(),
@@ -113,6 +114,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         StructuredErrorLog structuredLog = new StructuredErrorLog(
                 "CO-00-04",
+                "NONPARAMETER_ERROR",
                 "필수 파라미터 누락: " + ex.getParameterName(),
                 status.value(),
                 httpServletRequest != null ? httpServletRequest.getRequestURI() : "unknown",
@@ -146,6 +148,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .collect(Collectors.joining("\n"));
 
         StructuredErrorLog structuredLog = new StructuredErrorLog(
+                errorCode.getCode(),
                 errorCode.name(),
                 errorCode.getErrorMessage(),
                 errorCode.getHttpStatus().value(),
