@@ -46,7 +46,8 @@ public class SecurityConfig {
                                 "/user/**",  // 이미 허용된 경로
                                 "/error",
                                 "/event/**",
-                                "/card/**"
+                                "/card/**",
+                                "/health-check"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

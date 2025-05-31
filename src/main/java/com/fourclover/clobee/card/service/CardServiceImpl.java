@@ -125,7 +125,11 @@ public class CardServiceImpl implements CardService {
     // 카드 실적 조회
     @Override
     public UserCardPerformanceDetail getPerformance(Long userCardId, int year, int month) {
-        return cardRepository.getPerformance(userCardId, year, month);
+        UserCardPerformanceDetail result = cardRepository.getPerformance(userCardId, year, month);
+        if (result == null) {
+            throw new ApiException(ErrorCode.PERFORMANCE_NOT_FOUND);
+        }
+        return result;
     }
 
     // 내 카드 삭제하기
@@ -174,33 +178,40 @@ public class CardServiceImpl implements CardService {
     // 카드 혜택을 지도로
     @Override
     public List<CardBenefitDetail> getCardBenefitsSortedByDiscount(int userId, String store) {
+        if (userId <= 0 || store == null || store.trim().isEmpty()) {
+            throw new ApiException(ErrorCode.INVALID_USER);
+        }
+
         List<CardBenefitDetail> rawData = cardRepository.selectCardBenefitsByUserIdAndStore(userId, store);
+        if (rawData == null || rawData.isEmpty()) {
+            throw new ApiException(ErrorCode.CARD_NOT_FOUND_MAP);
+        }
 
         return rawData.stream().map(data -> {
-                    String discountRaw = data.getCardBenefitDiscntPrice();
-
-                    int discountAmount = parseToDiscountAmount(discountRaw, store);
-
+                    int discountAmount = parseToDiscountAmount(data.getCardBenefitDiscntPrice(), store);
                     data.setDiscountPrice(discountAmount);
                     return data;
                 }).sorted(Comparator.comparingInt(CardBenefitDetail::getDiscountPrice).reversed())
                 .collect(Collectors.toList());
-
     }
 
     // 매장별 카드 혜택 높은 카드 추천
+    @Override
     public List<CardBenefitDetail> getRecommendedCards(String store) {
+        if (store == null || store.trim().isEmpty()) {
+            throw new ApiException(ErrorCode.EMPTY_SEARCH_STORE);
+        }
+
         List<CardBenefitDetail> rawList = cardRepository.selectRecommendedCardsByStore(store);
+        if (rawList == null || rawList.isEmpty()) {
+            throw new ApiException(ErrorCode.RECOMMENDATION_NOT_AVAILABLE);
+        }
 
         return rawList.stream()
-                .peek(dto -> {
-                    int discount = parseToDiscountAmount(dto.getCardBenefitDiscntPrice(), store);
-                    dto.setDiscountPrice(discount);
-                })
+                .peek(dto -> dto.setDiscountPrice(parseToDiscountAmount(dto.getCardBenefitDiscntPrice(), store)))
                 .filter(dto -> dto.getDiscountPrice() > 0)
-                .sorted(Comparator
-                        .comparingInt(CardBenefitDetail::getDiscountPrice).reversed()  // 할인 금액 내림차순
-                        .thenComparingInt(CardBenefitDetail::getCardRank))  // card_rank 오름차순 (1등급이 가장 좋음)
+                .sorted(Comparator.comparingInt(CardBenefitDetail::getDiscountPrice).reversed()
+                        .thenComparingInt(CardBenefitDetail::getCardRank))
                 .limit(3)
                 .collect(Collectors.toList());
     }
@@ -209,68 +220,34 @@ public class CardServiceImpl implements CardService {
     // 원 단위와 % 단위를 비교하기 위한 코드
     private int parseToDiscountAmount(String priceStr, String storeName) {
         try {
-            priceStr = priceStr.trim();
-
-            // 한글 숫자 표현 변환
-            priceStr = priceStr.replace("천", "000")
-                    .replace("백", "00")
-                    .replace("만", "0000");
-
-            // 범위 표현 처리 (예: 30~50% → 최대값 사용)
+            priceStr = priceStr.trim().replace("천", "000").replace("백", "00").replace("만", "0000");
             if (priceStr.contains("~")) {
                 String[] range = priceStr.split("~");
                 if (range.length == 2) {
-                    // 최대값 사용
                     priceStr = range[1].trim();
                 }
             }
-
-            // "최대" 표현 처리
             if (priceStr.contains("최대")) {
                 priceStr = priceStr.replace("최대", "").trim();
-
-                // "최대 10%" 형태 처리
                 if (priceStr.endsWith("%")) {
                     double percent = Double.parseDouble(priceStr.replace("%", "").trim());
-                    if (storeName.contains("CGV") || storeName.contains("메가박스") ||
-                            storeName.contains("롯데시네마") || storeName.contains("영화")) {
-                        return (int) (14000 * (percent / 100.0));
-                    }
-                    return (int) (10000 * (percent / 100.0));
+                    return storeName.contains("CGV") || storeName.contains("메가박스") || storeName.contains("롯데시네마") || storeName.contains("영화")
+                            ? (int) (14000 * (percent / 100.0))
+                            : (int) (10000 * (percent / 100.0));
                 }
-
-                // "최대 8천포인트" 형태는 0으로 처리 (포인트는 할인이 아님)
-                if (priceStr.contains("포인트")) {
-                    return 0;
-                }
+                if (priceStr.contains("포인트")) return 0;
             }
-
-            // 쿠폰인 경우 0 처리
-            if (priceStr.contains("쿠폰")) {
-                return 0;
-            }
-
-            // 퍼센트 할인
+            if (priceStr.contains("쿠폰")) return 0;
             if (priceStr.endsWith("%")) {
                 double percent = Double.parseDouble(priceStr.replace("%", "").trim());
-
-                // 영화관 관련 매장은 영화 티켓 기준 가격 적용
-                if (storeName.contains("CGV") || storeName.contains("메가박스") ||
-                        storeName.contains("롯데시네마") || storeName.contains("영화")) {
-                    return (int) (14000 * (percent / 100.0));
-                }
-
-                // 기본 10,000원 기준
-                return (int) (10000 * (percent / 100.0));
+                return storeName.contains("CGV") || storeName.contains("메가박스") || storeName.contains("롯데시네마") || storeName.contains("영화")
+                        ? (int) (14000 * (percent / 100.0))
+                        : (int) (10000 * (percent / 100.0));
             }
-
-            // 금액 할인
             if (priceStr.contains("원")) {
                 return Integer.parseInt(priceStr.replaceAll("[^0-9]", ""));
             }
-
             return 0;
-
         } catch (Exception e) {
             System.err.println("할인 금액 파싱 오류: " + priceStr + " - " + e.getMessage());
             return 0;

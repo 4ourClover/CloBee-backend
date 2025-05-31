@@ -4,101 +4,170 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-@RestControllerAdvice // 전역적으로 예외처리 가능
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+@RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(ApiException.class)
-    protected ResponseEntity<Object> apiException(ApiException e) {
-        ErrorCode errorCode = e.getErrorCode();
-        log.error("ApiException : {} - {}", errorCode.name(), errorCode.getErrorMessage());
-        return makeExceptionResponse(errorCode);
+    protected ResponseEntity<Object> apiException(ApiException e, HttpServletRequest request) {
+        return makeExceptionResponse(e.getErrorCode(), request, e);
     }
 
-    // JWT 관련 예외 처리 추가
     @ExceptionHandler({
             ExpiredJwtException.class,
             UnsupportedJwtException.class,
             MalformedJwtException.class,
             SignatureException.class
     })
-    protected ResponseEntity<Object> handleJwtException(Exception e) {
-        log.error("JWT Exception : {}", e.getMessage());
-        return makeExceptionResponse(ErrorCode.FAKE_TOKEN);
+    protected ResponseEntity<Object> handleJwtException(Exception e, HttpServletRequest request) {
+        return makeExceptionResponse(ErrorCode.FAKE_TOKEN, request, e);
     }
 
-    // IllegalArgumentException 처리 추가 - JWT 파싱 실패 시 주로 발생
     @ExceptionHandler(IllegalArgumentException.class)
-    protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException e) {
-        log.error("IllegalArgumentException : {}", e.getMessage());
-
-        // JWT 관련 오류인 경우
-        if (e.getMessage() != null && (
-                e.getMessage().contains("JWT") ||
-                        e.getMessage().contains("token") ||
-                        e.getMessage().contains("CharSequence cannot be null or empty")
-        )) {
-            return makeExceptionResponse(ErrorCode.UNKNOWN_TOKEN_TYPE);
+    protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException e, HttpServletRequest request) {
+        if (e.getMessage() != null &&
+                (e.getMessage().contains("JWT") || e.getMessage().contains("token") || e.getMessage().contains("CharSequence"))) {
+            return makeExceptionResponse(ErrorCode.UNKNOWN_TOKEN_TYPE, request, e);
         }
-
-        return makeExceptionResponse(ErrorCode.INTERNAL_SERVER_ERROR);
+        return makeExceptionResponse(ErrorCode.INTERNAL_SERVER_ERROR, request, e);
     }
 
-    // 인증 관련 예외 처리
     @ExceptionHandler(AuthenticationException.class)
-    protected ResponseEntity<Object> handleAuthenticationException(AuthenticationException e) {
-        log.error("AuthenticationException : {}", e.getMessage());
-
+    protected ResponseEntity<Object> handleAuthenticationException(AuthenticationException e, HttpServletRequest request) {
         if (e instanceof BadCredentialsException) {
-            return makeExceptionResponse(ErrorCode.PASSWORD_NOT_MATCH);
+            return makeExceptionResponse(ErrorCode.PASSWORD_NOT_MATCH, request, e);
         }
-
-        return makeExceptionResponse(ErrorCode.UNAUTHORIZED);
+        return makeExceptionResponse(ErrorCode.UNAUTHORIZED, request, e);
     }
 
-    // NullPointerException 처리
-    @ExceptionHandler(NullPointerException.class)
-    protected ResponseEntity<Object> handleNullPointerException(NullPointerException e) {
-        log.error("NullPointerException : {}", e.getMessage());
+    protected ResponseEntity<Object> handleNullPointerException(NullPointerException e, HttpServletRequest request) {
+        boolean isAuthenticationRelated = Arrays.stream(e.getStackTrace())
+                .anyMatch(el -> el.getClassName().contains("Authentication")
+                        || el.getClassName().contains("Security")
+                        || el.getClassName().contains("Jwt")
+                        || el.getClassName().contains("User"));
 
-        // Authentication이 null인 경우가 많음
-        boolean isAuthenticationRelated = false;
-        for (StackTraceElement element : e.getStackTrace()) {
-            if (element.getClassName().contains("Authentication") ||
-                    element.getClassName().contains("Security") ||
-                    element.getClassName().contains("Jwt") ||
-                    element.getClassName().contains("User")) {
-                isAuthenticationRelated = true;
-                log.error("Authentication related NPE at: {}", element);
-                break;
-            }
-        }
+        ErrorCode errorCode = isAuthenticationRelated ? ErrorCode.UNAUTHORIZED : ErrorCode.INTERNAL_SERVER_ERROR;
+        return makeExceptionResponse(errorCode, request, e);
+    }
 
-        return makeExceptionResponse(
-                isAuthenticationRelated ? ErrorCode.UNAUTHORIZED : ErrorCode.INTERNAL_SERVER_ERROR
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    protected ResponseEntity<Object> handleTypeMismatch(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
+        String userId = getUserId();
+
+        String stackTrace = Arrays.stream(e.getStackTrace())
+                .limit(5)
+                .map(StackTraceElement::toString)
+                .collect(Collectors.joining("\n"));
+
+        StructuredErrorLog structuredLog = new StructuredErrorLog(
+                "CO-01",
+                "TYPE_ERROR",
+                "요청 파라미터 타입이 올바르지 않습니다: " + e.getName(),
+                HttpStatus.BAD_REQUEST.value(),
+                request.getRequestURI(),
+                userId,
+                stackTrace
+        );
+
+        log.error("파라미터 타입 예외 발생: {}", structuredLog);
+
+        return new ResponseEntity<>(
+                new ErrorResponse(400, "CO-01", "요청 파라미터 타입이 올바르지 않습니다."),
+                HttpStatus.BAD_REQUEST
         );
     }
 
-    @ExceptionHandler(Exception.class)
-    protected ResponseEntity<Object> handleException(Exception e) {
-        log.error("handleException : {}", e.getMessage());
-        // 전체 스택 트레이스 로깅
-        log.error("Exception stack trace:", e);
-        return makeExceptionResponse(ErrorCode.INTERNAL_SERVER_ERROR);
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestParameter(
+            MissingServletRequestParameterException ex,
+            HttpHeaders headers,
+            org.springframework.http.HttpStatusCode status,
+            WebRequest request
+    ) {
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request.resolveReference("request");
+        String userId = getUserId();
+
+        String stackTrace = Arrays.stream(ex.getStackTrace())
+                .limit(5)
+                .map(StackTraceElement::toString)
+                .collect(Collectors.joining("\n"));
+
+        StructuredErrorLog structuredLog = new StructuredErrorLog(
+                "CO-00-04",
+                "NONPARAMETER_ERROR",
+                "필수 파라미터 누락: " + ex.getParameterName(),
+                status.value(),
+                httpServletRequest != null ? httpServletRequest.getRequestURI() : "unknown",
+                userId,
+                stackTrace
+        );
+
+        log.error("필수 파라미터 누락 예외 발생: {}", structuredLog);
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                status.value(),
+                "CO-00-04",
+                "필수 파라미터 '" + ex.getParameterName() + "'가 누락되었습니다."
+        );
+
+        return new ResponseEntity<>(errorResponse, status);
     }
 
-    private ResponseEntity<Object> makeExceptionResponse(ErrorCode errorCode) {
+
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<Object> handleException(Exception e, HttpServletRequest request) {
+        return makeExceptionResponse(ErrorCode.INTERNAL_SERVER_ERROR, request, e);
+    }
+
+    private ResponseEntity<Object> makeExceptionResponse(ErrorCode errorCode, HttpServletRequest request, Exception e) {
+        String userId = getUserId();
+
+        String stackTrace = Arrays.stream(e.getStackTrace())
+                .limit(5)
+                .map(StackTraceElement::toString)
+                .collect(Collectors.joining("\n"));
+
+        StructuredErrorLog structuredLog = new StructuredErrorLog(
+                errorCode.getCode(),
+                errorCode.name(),
+                errorCode.getErrorMessage(),
+                errorCode.getHttpStatus().value(),
+                request.getRequestURI(),
+                userId,
+                stackTrace
+        );
+
+        log.error("예외 발생: {}", structuredLog);
+
         ErrorResponse errorResponse = ErrorResponse.of(errorCode);
         return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(errorResponse.getStatus()));
+    }
+
+    private String getUserId() {
+        try {
+            return SecurityContextHolder.getContext().getAuthentication().getName();
+        } catch (Exception ignored) {
+            return "anonymous";
+        }
     }
 }
