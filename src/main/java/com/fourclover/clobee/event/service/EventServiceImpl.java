@@ -96,14 +96,14 @@ public class EventServiceImpl implements EventService {
             d.setEventFindingCloverParticipationStatus(false);
             d.setEventFindingCloverCurrentStage(1);
             d.setEventFindingCloverReceiveCoupon(false);
-            d.setEventFindingCloverAttemptsLeft(30);
+            d.setEventFindingCloverAttemptsLeft(5);
             eventRepository.insertCloverDetail(d);
 
         } else if (invited) {
             // 친구 초대 시: 당일 참여 여부 완전 초기화 (시도 횟수 5회로)
             d.setEventFindingCloverParticipationStatus(false);
             d.setEventFindingCloverCurrentStage(1);
-            d.setEventFindingCloverAttemptsLeft(30);
+            d.setEventFindingCloverAttemptsLeft(5);
             eventRepository.updateCloverDetail(d);
         }
 
@@ -160,7 +160,7 @@ public class EventServiceImpl implements EventService {
             d.setEventFindingCloverCurrentStage(nextStage);
 
             // 다음 스테이지 준비
-            d.setEventFindingCloverAttemptsLeft(30);
+            d.setEventFindingCloverAttemptsLeft(5);
 
             if (nextStage > 3 && !d.getEventFindingCloverReceiveCoupon()) {
                 // 3단계 최초 클리어 -> 쿠폰 지급
