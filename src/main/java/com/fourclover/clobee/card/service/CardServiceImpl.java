@@ -5,12 +5,14 @@ import com.fourclover.clobee.card.repository.CardRepository;
 import com.fourclover.clobee.config.exception.ApiException;
 import com.fourclover.clobee.config.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +20,10 @@ import java.util.stream.Collectors;
 public class CardServiceImpl implements CardService {
 
     private final CardRepository cardRepository;
+
+    // 카드 신청하기 redis로 중복 요청 방지
+    private final RedisTemplate<String, String> redisTemplate;
+    private static final long REQUEST_TTL_SECONDS = 5;
 
 
     // 전체 카드 불러오기
@@ -57,16 +63,33 @@ public class CardServiceImpl implements CardService {
     // 카드 신청하기 버튼 클릭 시 card_apply_views 증가
     @Override
     @Transactional  // 트랜잭션
-    public String getCardBrandUrlAndIncreaseApplyViews(Long cardInfoId, int cardBrand) {
-        cardRepository.updateApplyViews(cardInfoId);
-        String url = cardRepository.getCardBrandURL(cardBrand);
+    public String getCardBrandUrlAndIncreaseApplyViews(Long cardInfoId, int cardBrand, Long userId) {
+        String id = userId.toString(); // 예: SecurityContextHolder에서 가져오기
+        String redisKey = String.format("card:apply:%s:%s", userId, cardInfoId);
 
-        // 카드 브랜드 url이 없는 경우 redirection 오류
-        if (url == null) {
-            throw new ApiException(ErrorCode.CARD_BRAND_URL_NOT_FOUND);
+        // 요청 중인지 확인
+        Boolean isRequestInProgress = redisTemplate.hasKey(redisKey);
+        if (Boolean.TRUE.equals(isRequestInProgress)) {
+            throw new ApiException(ErrorCode.DUPLICATE_REQUEST);
         }
 
-        return url;
+        // 요청 시작 표시 (TTL 설정)
+        redisTemplate.opsForValue().set(redisKey, "IN_PROGRESS", REQUEST_TTL_SECONDS, TimeUnit.SECONDS);
+
+        try {
+            // 실제 비즈니스 로직
+            cardRepository.updateApplyViews(cardInfoId);
+            String url = cardRepository.getCardBrandURL(cardBrand);
+
+            if (url == null) {
+                throw new ApiException(ErrorCode.CARD_BRAND_URL_NOT_FOUND);
+            }
+
+            return url;
+        } finally {
+            // 요청 완료 후 key 삭제
+            redisTemplate.delete(redisKey);
+        }
     }
 
     // 내 카드 추가하기

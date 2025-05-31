@@ -13,7 +13,7 @@ public interface CardService {
 
     List<CardBenefitDetail> getCardBenefitDetail(Long cardInfoId);
 
-    String getCardBrandUrlAndIncreaseApplyViews(Long cardInfoId, int cardBrand);
+    String getCardBrandUrlAndIncreaseApplyViews(Long cardInfoId, int cardBrand, Long userId);
 
     void addUserCard(Long userId, Long cardInfoId, Integer userCardType);
 

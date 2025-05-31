@@ -33,8 +33,8 @@ public class CardController {
 
     // 카드 신청하기 URL 반환 (리다이렉트 대신 문자열 반환)
     @GetMapping("/apply")
-    public ResponseEntity<String> applyCard(@RequestParam Long cardInfoId, @RequestParam int cardBrand) {
-        String url = cardService.getCardBrandUrlAndIncreaseApplyViews(cardInfoId, cardBrand);
+    public ResponseEntity<String> applyCard(@RequestParam Long cardInfoId, @RequestParam int cardBrand, @RequestParam Long userId) {
+        String url = cardService.getCardBrandUrlAndIncreaseApplyViews(cardInfoId, cardBrand, userId);
         return ResponseEntity.ok(url);
     }
 

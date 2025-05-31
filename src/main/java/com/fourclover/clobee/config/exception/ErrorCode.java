@@ -62,6 +62,8 @@ public enum ErrorCode {
     PERFORMANCE_NOT_FOUND("CA-02", HttpStatus.NOT_FOUND, "해당 카드 실적 정보를 찾을 수 없습니다."),
     // 받아온 혜택 정보가 비었을 경우
     RECOMMENDATION_NOT_AVAILABLE("CA-04", HttpStatus.NOT_FOUND, "추천 가능한 카드가 없습니다."),
+    // 카드 신청하기 중복 요청 되었을 경우
+    DUPLICATE_REQUEST("CA-04", HttpStatus.TOO_MANY_REQUESTS, "중복 요청이 감지되었습니다."),
 
     // 인증/인가 관련
     // 토큰
