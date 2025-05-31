@@ -18,6 +18,8 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
+      lettuce:
+        use-native-dns-resolver: true
   batch:
     secret: "clobee_clover1230"
   app:
