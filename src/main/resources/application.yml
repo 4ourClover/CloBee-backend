@@ -1,10 +1,6 @@
 spring:
   application:
     name: clobee
-#  profiles:
-#    active: prod #local
-#  config:
-#    import: optional:file:.env.prod[.properties] #local[.properties]
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -31,7 +27,8 @@ spring:
             client-secret: ${KAKAO_CLIENT_SECRET}
             client-name: kakao
             authorization-grant-type: authorization_code
-            redirect-uri: "http://localhost:8080/api/login/oauth2/code/kakao"
+            #redirect-uri: "http://localhost:8080/api/login/oauth2/code/kakao"
+            redirect-uri: "https://www.clobee.net/api/login/oauth2/code/kakao"
             client-authentication-method: client_secret_post
             scope:
               - profile_nickname
@@ -62,11 +59,6 @@ mybatis:
   type-aliases-package: com.fourclover.clobee.noti.domain, com.fourclover.clobee.user.domain, com.fourclover.clobee.card.domain, com.fourclover.clobee.event.domain, com.fourclover.clobee.map.domain
   configuration:
     map-underscore-to-camel-case: true
-
-#logging:
-#  level:
-#    org.mybatis: INFO
-#    org.springframework.jdbc: DEBUG
 
 jwt:
   secret: ${JWT_SECRET}
