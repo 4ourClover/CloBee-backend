@@ -318,8 +318,8 @@ public class UserServiceImpl implements UserService {
             setTokenToCookie(response, tokenResponse);
 
             // 프론트 리다이렉션
-            response.sendRedirect("http://localhost:3000/kakao/callback");
-
+            // response.sendRedirect("http://localhost:3000/kakao/callback");
+            response.sendRedirect("https://www.clobee.net/kakao/callback");
             return ResponseEntity.ok(tokenResponse);
 
         } catch (ApiException e) {
@@ -336,7 +336,8 @@ public class UserServiceImpl implements UserService {
 
                 // 자동 로그인 상태로 변경
                 try {
-                    response.sendRedirect("http://localhost:3000/kakao/callback");
+                   // response.sendRedirect("http://localhost:3000/kakao/callback");
+                    response.sendRedirect("https://www.clobee.net/kakao/callback");
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
