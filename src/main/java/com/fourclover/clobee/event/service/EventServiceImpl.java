@@ -62,6 +62,30 @@ public class EventServiceImpl implements EventService {
         return eventRepository.getEventInfo(params);
     }
 
+    @Override
+    public EventCloverCollectionDetail selectCloverCollection(Long userId) {
+        EventCloverCollectionDetail cloverCollectionDetail = new EventCloverCollectionDetail();
+        cloverCollectionDetail = eventRepository.selectCloverCollection(userId);
+        System.out.println(userId);
+
+        if (cloverCollectionDetail.isEmpty()) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("userId", userId != null ? userId : 0L);
+            params.put("eventInfoId", 176);
+            eventRepository.insertClover(params); // 새로운 클로버 추가
+
+            cloverCollectionDetail = eventRepository.selectCloverCollection(userId);
+        } else if (cloverCollectionDetail.getEventCloverCollectionCount() == 4) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("eventCloverCollectionId", cloverCollectionDetail.getEventCloverCollectionId());
+
+            // 클로버 채우기 성공
+            eventRepository.updateCloverCollection(params);
+        }
+
+        return cloverCollectionDetail;
+    }
+
     // 배치 프로그램 || 클로버 다음날되면 참여 여부 초기화
     @Override
     public void initCloverGame() {

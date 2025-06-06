@@ -16,6 +16,11 @@ public interface EventRepository {
     List<String> getTotalAttend(Map params);
     Long addAttendDay(EventAttendanceDetail attendanceDetail);
 
+    // 클로버 만들기 이벤트
+    int insertClover(Map params);
+    EventCloverCollectionDetail selectCloverCollection(Long userId);
+    int updateCloverCollection(Map params);
+
     // 클로버 찾기 이벤트
     EventFindingCloverDetail selectCloverDetailByUserId(@Param("userId") Long userId);
     List<EventFindingCloverDetail> selectCloverDetailByUserList();

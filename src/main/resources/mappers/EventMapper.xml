@@ -56,6 +56,36 @@
         LIMIT #{size} OFFSET #{offset}
     </select>
 
+    <!-- 클로버 만들기 이벤트 : 클로버 새로 만들기 -->
+    <insert id="insertClover" parameterType="map">
+        INSERT INTO event_clover_collection_detail (
+            user_id,
+            event_info_id,
+            event_clover_collection_count
+        ) VALUES (
+            #{userId},
+            #{eventInfoId},
+            0
+        )
+    </insert>
+
+    <!-- 클로버 만들기 이벤트 : 클로버 갯수 조회 -->
+    <select id="selectCloverCollection"
+            parameterType="long"
+            resultType="EventCloverCollectionDetail">
+        SELECT *
+        FROM event_clover_collection_detail
+        WHERE user_id = #{userId}
+          AND event_clover_collection_success = false
+    </select>
+
+    <!-- 클로버 만들기 이벤트 : 클로버 만들기 성공여부 토글 -->
+    <update id="updateCloverCollection" parameterType="map">
+        UPDATE event_finding_clover_detail
+        SET event_clover_collection_success = true
+        WHERE event_clover_collection_id = #{eventCloverCollectionId}
+    </update>
+
     <!-- findClover 이벤트 정보 단건 조회 -->
     <select id="selectEventInfoByTypeCd"
             parameterType="int"

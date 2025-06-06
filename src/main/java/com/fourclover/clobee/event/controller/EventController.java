@@ -18,6 +18,7 @@ public class EventController {
         this.eventService = eventService;
     }
 
+    // 카드사 이벤트 조회
     @GetMapping("/getCardEvent")
     public ResponseEntity<List<EventInfo>> getCardEvent(@RequestParam(value = "userId", required = false) Long userId,
                                                         @RequestParam int pageSize,
@@ -25,15 +26,23 @@ public class EventController {
         return ResponseEntity.ok(eventService.getCardEvents(userId, pageSize, pageNumber));
     }
 
+    // 출석 이벤트 : 출석일수 조회
     @GetMapping("/getTotalAttend")
     public ResponseEntity<List<String>> getTotalAttend(@RequestParam("userId") long userId,
                                                        @RequestParam("month") String month) {
         return ResponseEntity.ok(eventService.getTotalAttend(userId, month));
     }
 
+    // 출석 이벤트 : 출석일수 추가
     @PostMapping("/addAttend")
     public ResponseEntity<Object> addAttend(@RequestBody EventAttendanceDetail eventAttendanceDetail) {
         return ResponseEntity.ok(eventService.addAttend(eventAttendanceDetail));
+    }
+
+    // 클로버 채우기 이벤트 : 클로버 불러오기 & 추가
+    @GetMapping("/fillClover/init")
+    public ResponseEntity<Object> selectCloverCollection(@RequestParam("userId") Long userId) {
+        return ResponseEntity.ok(eventService.selectCloverCollection(userId));
     }
 
     // 게임 시작 or 오늘 초대 보너스(친구 초대시 invited=true)
